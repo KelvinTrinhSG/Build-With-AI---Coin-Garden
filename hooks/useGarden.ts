@@ -3,14 +3,31 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchPrices } from "@/lib/priceClient";
 import { stageFor } from "@/lib/growth";
+import { loadGarden, saveGarden } from "@/lib/storage";
 import type { NewPlant, Plant, Stage } from "@/lib/types";
 
 export type PriceStatus = "idle" | "loading" | "ok" | "error";
 
 export function useGarden() {
   const [plants, setPlants] = useState<Plant[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [priceStatus, setPriceStatus] = useState<PriceStatus>("idle");
+
+  // The server renders before it can know what's in this browser's localStorage,
+  // so the garden is read only after mount. Reading it during render would make the
+  // browser's first render differ from the server HTML (a hydration mismatch).
+  useEffect(() => {
+    // A demo interrupted by a reload is shown finished rather than stuck as a seed.
+    const saved = loadGarden().map((p) => (p.isDemo && !p.demoComplete ? { ...p, demoComplete: true } : p));
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from browser-only storage after mount
+    setPlants(saved);
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (loaded) saveGarden(plants);
+  }, [plants, loaded]);
 
   // Unique real coins in the garden, as a stable string so the effect only reruns when it changes.
   const coinKey = useMemo(
@@ -40,6 +57,10 @@ export function useGarden() {
     setPlants((prev) => [...prev, plant]);
   }, []);
 
+  const updateLesson = useCallback((id: string, lesson: string) => {
+    setPlants((prev) => prev.map((p) => (p.id === id ? { ...p, lesson: lesson.trim() || undefined } : p)));
+  }, []);
+
   const priceOf = useCallback((plant: Plant): number | undefined => prices[plant.coinId], [prices]);
 
   const stageOf = useCallback((plant: Plant): Stage => stageFor(plant.buyPrice, prices[plant.coinId]), [prices]);
@@ -51,5 +72,5 @@ export function useGarden() {
     [priceStatus, prices],
   );
 
-  return { plants, setPlants, prices, priceStatus, addPlant, priceOf, stageOf, priceMissing };
+  return { plants, setPlants, loaded, prices, priceStatus, addPlant, updateLesson, priceOf, stageOf, priceMissing };
 }

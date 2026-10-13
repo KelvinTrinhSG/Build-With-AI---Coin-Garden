@@ -60,7 +60,7 @@ Build mode: fast
   Learner check: Press Demo and watch the BTC plant go seed → sprout → 4 leaves → bud → sunflower in about 10 seconds. Confirm your other plants didn't change. Press Demo again and see the same plant replay instead of a second one.
   Commit: `Add 10-second BTC Demo growth`
 
-- [ ] **4. The garden remembers you**
+- [x] **4. The garden remembers you**
   Becomes usable: Purchases and the finished Demo sunflower are still there after closing and reopening the browser, with no hydration warning.
   Why now: The PRD says plants are never lost, and lessons (next slice) need somewhere to live. This is also the agreed investigation from `spec.md > Decisions and Open Issues`: see the hydration trap, then fix it.
   PRD ref: `prd.md > States and Boundaries` (persistence)
@@ -116,7 +116,7 @@ Build mode: fast
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 3 (plant from the notebook, real growth, Demo), before visual polish is locked in
+- [ ] Early usable behavior explored — after slice 3 (plant from the notebook, real growth, Demo), before visual polish is locked in. *Not performed: the learner chose to continue straight to slices 4–6; early feedback folds into the final review.*
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
@@ -141,4 +141,6 @@ Activity mode:
 - **`@types/node` was bumped to ^24 so Vitest 5 installs.** Its peer range excludes the scaffold's ^20. The runtime is Node 24.
 - **CoinGecko keyless access was verified.** On 2026-10-13, `/search` and `/simple/price` both worked without a key, with the fields the spec assumed.
 - **Added `demoSamplePrice?: boolean` to `Plant`, and moved the demo price curve into `lib/demo.ts`.** The labelled sample fallback needs to be remembered on the plant, and keeping the curve pure makes it unit-testable.
+- **The hydration demonstration (read `localStorage` during render, see the warning, fix it) moved to the learning wrap-up, and the browser reload/console check moved to the final review.** The agent has no browser to observe console warnings in fast mode. The fix (load in `useEffect` after mount) is implemented in `hooks/useGarden.ts`.
+- **A demo plant interrupted by a reload now loads as a finished sunflower.** Previously it would have been stuck as a seed, because the simulated price isn't stored.
 
