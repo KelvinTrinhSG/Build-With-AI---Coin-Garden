@@ -117,23 +117,24 @@ Build mode: fast
 ## Hands-on Checkpoints
 
 - [ ] Early usable behavior explored — after slice 3 (plant from the notebook, real growth, Demo), before visual polish is locked in. *Not performed: the learner chose to continue straight to slices 4–6; early feedback folds into the final review.*
-- [ ] Final kick-the-tires exploration and feedback completed
+- [ ] Final kick-the-tires exploration and feedback completed — *not performed as a separate session. The learner asked to move on to the wrap-up and shipping. Browser-only checks (visuals at 375/1280px, console hydration, Network tab, sunflower-tap behaviour) will happen while recording the demo in `6-ship`.*
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- No revision requests were raised. The learner asked to proceed to the wrap-up and `6-ship`.
+- [x] Final review complete — feedback resolved and learner confirms ready to ship (confirmed by proceeding to ship, with no separate hands-on report)
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [x] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence:
-Route and stops:
-Edit outcome:
-Reflection:
-Activity mode:
+Activity and evidence: A brief evidence-based recap tied to the spec's recorded uncertainty (how Next.js splits server and browser work). It points to `hooks/useGarden.ts` (`loadGarden()` inside `useEffect`) and to `app/api/prices/route.ts` → `lib/coingecko.ts` `fetchPrices` (`"use cache"`). The server HTML was observed with no sign or welcome text, and the browser fills those in after mount. The hands-on hydration experiment was offered as optional in the app map, not performed.
+Route and stops: Reference route only, not toured live. 1) `components/notebook/NewEntryPage.tsx` `submit`. 2) `hooks/useGarden.ts` `loadGarden()` / `addPlant`. 3) `app/api/prices/route.ts` → `lib/coingecko.ts` `fetchPrices` → `lib/growth.ts` `stageFor`.
+Edit outcome: Not applicable (the optional experiment is described in the map).
+Reflection: Offered once in chat.
+Activity mode: Recap (the learner chose to move straight on to shipping).
 
 ## Revisions
 

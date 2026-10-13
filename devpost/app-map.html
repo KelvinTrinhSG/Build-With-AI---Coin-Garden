@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Garden — App Map</title>
+<style>
+  :root {
+    --grass: #cfe6b0; --cream: #fbf3df; --cream-deep: #f1e3c0; --bark: #6b4a2b; --bark-dark: #4a321c;
+    --wheat: #e8b730; --slate: #6f8796; --ink: #3b2a1a; --sky: #e1e9ee; --leafy: #dcefc8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); background: var(--grass); line-height: 1.55; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 28px 18px 56px; }
+  h1, h2, h3 { margin: 0 0 .4em; }
+  h1 { color: var(--cream); text-shadow: 0 3px 0 var(--bark-dark); font-size: 2.2rem; text-align: center; }
+  .sub { text-align: center; font-weight: 700; color: var(--bark-dark); margin-top: 0; }
+  .panel { background: var(--cream); border: 3px solid var(--bark); border-radius: 16px; box-shadow: 0 5px 0 var(--bark-dark); padding: 18px 22px; margin: 0 0 22px; }
+  code { background: var(--cream-deep); padding: 1px 6px; border-radius: 6px; font-size: .92em; }
+  svg { width: 100%; height: auto; display: block; }
+  ol.route > li { margin-bottom: 14px; }
+  .where { font-weight: 700; }
+  .tag { display: inline-block; font-size: .75rem; font-weight: 700; padding: 1px 9px; border-radius: 999px; border: 2px solid var(--bark); margin-right: 6px; }
+  .client { background: var(--leafy); } .server { background: var(--sky); } .pure { background: #fbe7a6; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 2px dashed var(--cream-deep); vertical-align: top; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; font-weight: 700; }
+  .note { color: var(--slate); font-size: .9rem; }
+  pre { background: #fff7e0; border: 2px solid var(--cream-deep); border-radius: 10px; padding: 10px 12px; overflow-x: auto; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Coin Garden · App Map</h1>
+  <p class="sub">A take-home guide to where things live and how one action flows through the app.</p>
+
+  <section class="panel" aria-labelledby="overview">
+    <h2 id="overview">What it is, in a few pieces</h2>
+    <p>Coin Garden turns each crypto purchase into a seed that grows as the price rises toward x2. It has three kinds of code:</p>
+    <ul>
+      <li><span class="tag client">Browser</span><strong>The garden and notebook:</strong> React client components in <code>components/</code>, driven by two hooks in <code>hooks/</code>. Your plants are saved in this browser's <code>localStorage</code>.</li>
+      <li><span class="tag server">Server</span><strong>Two API routes</strong> in <code>app/api/</code>. They ask CoinGecko for coin search and prices, with a shared cache of about a minute.</li>
+      <li><span class="tag pure">Pure logic</span><strong>Small functions</strong> in <code>lib/</code>, such as <code>stageFor()</code>, which decides how grown every plant is. They are unit-tested.</li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-labelledby="flow">
+    <h2 id="flow">One action: "I plant a coin and see how far it has grown"</h2>
+    <svg viewBox="0 0 860 300" role="img" aria-labelledby="flowT flowD">
+      <title id="flowT">Flow of planting a coin</title>
+      <desc id="flowD">The notebook form calls useGarden.addPlant, which saves to localStorage and asks the /api/prices route. That route calls CoinGecko through a cached helper. stageFor turns buy price and current price into a stage, and the Plant component draws it.</desc>
+      <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#4a321c"/></marker></defs>
+      <rect x="8" y="8" width="560" height="284" rx="16" fill="#dcefc8" stroke="#6b4a2b" stroke-dasharray="7 6" stroke-width="2"/>
+      <text x="24" y="32" font-weight="700" font-size="15" fill="#4a321c">Browser</text>
+      <rect x="588" y="8" width="264" height="284" rx="16" fill="#e1e9ee" stroke="#6b4a2b" stroke-dasharray="7 6" stroke-width="2"/>
+      <text x="604" y="32" font-weight="700" font-size="15" fill="#4a321c">Server</text>
+      <g font-size="13" text-anchor="middle" fill="#3b2a1a">
+        <rect x="24" y="50" width="160" height="58" rx="12" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="104" y="74" font-weight="700">1 · NewEntryPage</text><text x="104" y="94">submit()</text>
+        <rect x="214" y="50" width="160" height="58" rx="12" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="294" y="74" font-weight="700">2 · useGarden</text><text x="294" y="94">addPlant()</text>
+        <rect x="404" y="50" width="148" height="58" rx="12" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="478" y="74" font-weight="700">localStorage</text><text x="478" y="94">coin-garden:v1</text>
+        <rect x="214" y="150" width="160" height="58" rx="12" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="294" y="174" font-weight="700">priceClient</text><text x="294" y="194">fetchPrices()</text>
+        <rect x="24" y="220" width="160" height="58" rx="12" fill="#fbe7a6" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="104" y="244" font-weight="700">3 · stageFor()</text><text x="104" y="264">lib/growth.ts</text>
+        <rect x="214" y="226" width="160" height="52" rx="12" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="294" y="250" font-weight="700">Plant · GardenScene</text><text x="294" y="268">you see the stage 🌻</text>
+        <rect x="604" y="150" width="232" height="58" rx="12" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="720" y="174" font-weight="700">/api/prices → fetchPrices()</text><text x="720" y="194">"use cache" · cacheLife("minutes")</text>
+        <rect x="644" y="236" width="152" height="44" rx="12" fill="#e1e9ee" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="720" y="263" font-weight="700">CoinGecko</text>
+      </g>
+      <g stroke="#4a321c" stroke-width="3" fill="none" marker-end="url(#a)">
+        <line x1="184" y1="79" x2="210" y2="79"/>
+        <line x1="374" y1="79" x2="400" y2="79"/>
+        <line x1="294" y1="108" x2="294" y2="146"/>
+        <line x1="374" y1="179" x2="600" y2="179"/>
+        <line x1="720" y1="208" x2="720" y2="232"/>
+        <path d="M214,190 Q120,190 104,216"/>
+        <line x1="184" y1="250" x2="210" y2="250"/>
+      </g>
+    </svg>
+    <p class="note">Text version: the notebook form → <code>useGarden.addPlant</code> → saved to <code>localStorage</code> and prices requested from <code>/api/prices</code> → CoinGecko (cached) → <code>stageFor(buy, current)</code> → <code>Plant</code> draws the stage.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="route">
+    <h2 id="route">Reference route: three stops</h2>
+    <p class="note">This is a reference route to read on your own. It wasn't toured together live.</p>
+    <ol class="route">
+      <li>
+        <p class="where"><span class="tag client">Browser</span><code>components/notebook/NewEntryPage.tsx</code> → search <code>function submit</code></p>
+        <p>This validates the four fields, then hands a <code>NewPlant</code> to <code>onPlant</code>. Above it, <code>CoinGardenApp.tsx</code> wires that to <code>garden.addPlant</code>.</p>
+      </li>
+      <li>
+        <p class="where"><span class="tag client">Browser</span><code>hooks/useGarden.ts</code> → search <code>loadGarden()</code> and <code>const addPlant</code></p>
+        <p>This is your server-vs-browser question in code. The saved garden is read <em>inside <code>useEffect</code></em>, after the page mounts, because the server rendered the HTML without knowing what's in your <code>localStorage</code>. Every change is saved back, and the unique coin ids are sent to <code>/api/prices</code>.</p>
+      </li>
+      <li>
+        <p class="where"><span class="tag server">Server</span><code>app/api/prices/route.ts</code> → <code>lib/coingecko.ts</code> → search <code>export async function fetchPrices</code></p>
+        <p>The route runs on the server and calls the <code>"use cache"</code> helper. It asks CoinGecko once a minute at most, and the result is shared by every visitor. Then, back in the browser, <code>lib/growth.ts</code> → <code>stageFor</code> turns the price into a stage.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="panel" aria-labelledby="change">
+    <h2 id="change">To change this, start here</h2>
+    <table>
+      <tr><th>I want to…</th><th>Start in</th></tr>
+      <tr><td>Change any colour</td><td><code>app/theme.css</code> (the only file allowed to define colours)</td></tr>
+      <tr><td>Change the growth thresholds or stage names</td><td><code>lib/growth.ts</code> → <code>STAGES</code> (the notebook guide page updates too), then run <code>npm test</code></td></tr>
+      <tr><td>Redraw a plant stage</td><td><code>components/garden/Plant.tsx</code> → <code>Growth</code></td></tr>
+      <tr><td>Add or edit built-in lessons</td><td><code>lib/lessons.ts</code> → <code>BUILT_IN_LESSONS</code></td></tr>
+      <tr><td>Change the Demo length or curve</td><td><code>lib/demo.ts</code> → <code>DEMO_DURATION_MS</code>, <code>demoPrice</code></td></tr>
+      <tr><td>Move trees, the pond, or the bird</td><td><code>components/garden/Scenery.tsx</code></td></tr>
+      <tr><td>Change how long prices are cached</td><td><code>lib/coingecko.ts</code> → <code>cacheLife("minutes")</code></td></tr>
+    </table>
+  </section>
+
+  <section class="panel" aria-labelledby="practice">
+    <h2 id="practice">A practice to reuse</h2>
+    <p><strong>Put the core rule in one pure, tested function, and let everything else call it.</strong></p>
+    <p>In this project, the kernel ("losses stay seeds, x2 is a sunflower") lives only in <code>stageFor()</code> in <code>lib/growth.ts</code>. The live garden, the 10-second Demo (<code>lib/demo.ts</code>) and the notebook guide page all call it. <code>lib/growth.test.ts</code> pins the exact thresholds (1.24 → seed, 1.25 → sprout, 2 → sunflower). <code>lib/demo.test.ts</code> proves the Demo passes through every stage in order, because it uses the same function.</p>
+    <p>On your next project, ask early: <em>what is the one rule that makes this product itself?</em> Give it a single home with no React, storage or network inside, and test it first. Then the UI, the API and any "demo mode" are just different ways of feeding it inputs.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="run">
+    <h2 id="run">Run it again</h2>
+    <pre>npm install
+npm run dev      # http://localhost:3000
+npm test         # growth, demo, storage, lessons</pre>
+    <details>
+      <summary>Try the hydration experiment (optional, about 1 minute)</summary>
+      <p>In <code>hooks/useGarden.ts</code>, temporarily change <code>useState&lt;Plant[]&gt;([])</code> to <code>useState&lt;Plant[]&gt;(() =&gt; typeof window === "undefined" ? [] : loadGarden())</code>. Reload a page that has saved plants, and the browser console shows a hydration mismatch, because the server HTML had an empty garden and the browser's first render didn't. Undo the change afterwards.</p>
+    </details>
+    <p class="note">This map is a snapshot of commit <code>b93b73f</code> and can drift as the code changes.</p>
+  </section>
+</main>
+</body>
+</html>
