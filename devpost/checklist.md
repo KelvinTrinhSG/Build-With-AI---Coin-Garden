@@ -44,7 +44,7 @@ Build mode: fast
   Learner check: Plant a coin with a buy price far below today's price (e.g. BTC at 1,000) and see a sunflower. Plant one above today's price and see a plain seed with no wilting.
   Commit: `Grow plants from live CoinGecko prices`
 
-- [ ] **3. Press Demo and watch BTC grow into a sunflower**
+- [x] **3. Press Demo and watch BTC grow into a sunflower**
   Becomes usable: The Demo button plants a single BTC demo plant at the current BTC price. Over about 10 seconds it grows through every stage into a sunflower, and then stays tinted and labelled "Demo". Pressing it again replays the same plant, and real plants are untouched.
   Why now: This is the "oh, that's cool" moment from `scope.md > What "Working" Looks Like`, and it's the heart of the demo video. Building it right after the growth logic proves `stageFor` drives both live and simulated growth.
   PRD ref: `prd.md > Demo`
@@ -140,4 +140,5 @@ Activity mode:
 - **Route caching uses `"use cache"` with `cacheLife("minutes")` in `lib/coingecko.ts`, not `fetch(..., { next: { revalidate: 60 } })`.** The scaffold is Next.js 16.4 with Cache Components enabled, which caches through `use cache` helpers. The `minutes` profile revalidates every 60s, so the behaviour is the same.
 - **`@types/node` was bumped to ^24 so Vitest 5 installs.** Its peer range excludes the scaffold's ^20. The runtime is Node 24.
 - **CoinGecko keyless access was verified.** On 2026-10-13, `/search` and `/simple/price` both worked without a key, with the fields the spec assumed.
+- **Added `demoSamplePrice?: boolean` to `Plant`, and moved the demo price curve into `lib/demo.ts`.** The labelled sample fallback needs to be remembered on the plant, and keeping the curve pure makes it unit-testable.
 

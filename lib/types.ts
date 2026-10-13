@@ -12,6 +12,7 @@ export type Plant = {
   lesson?: string;
   isDemo?: boolean;
   demoComplete?: boolean;
+  demoSamplePrice?: boolean; // demo buy price is a labelled sample because BTC price was unavailable
   createdAt: string; // ISO timestamp; also decides plot order
 };
 
