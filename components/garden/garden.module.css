@@ -4,3 +4,71 @@
   max-height: 62vh;
   overflow: visible;
 }
+
+.plant {
+  cursor: pointer;
+  outline: none;
+}
+
+.plant:focus-visible {
+  filter: drop-shadow(0 0 4px var(--wheat));
+}
+
+.bubble {
+  background: var(--cream);
+  border: var(--border);
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow-small);
+  padding: 8px 12px;
+  font-family: var(--font-body), sans-serif;
+  color: var(--ink);
+  position: relative;
+}
+
+/* Little tail pointing down at the flower */
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
+  width: 16px;
+  height: 16px;
+  background: var(--cream);
+  border-right: var(--border);
+  border-bottom: var(--border);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.bubbleText {
+  margin: 0;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bubbleFooter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.bubbleSource {
+  color: var(--slate);
+  font-weight: 700;
+}
+
+.bubbleLink {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--brick);
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 12px;
+}

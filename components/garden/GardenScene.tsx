@@ -1,5 +1,7 @@
+import type { Lesson } from "@/lib/lessons";
 import type { Plant as PlantData, Stage } from "@/lib/types";
 import Plant from "./Plant";
+import LessonBubble from "./LessonBubble";
 import styles from "./garden.module.css";
 
 // Isometric plot geometry. Slots fill row by row; the plot grows a row at a time.
@@ -24,9 +26,15 @@ type Props = {
   plants: PlantData[];
   stageOf: (plant: PlantData) => Stage;
   priceMissing: (plant: PlantData) => boolean;
+  selectedId: string | null;
+  lessonFor: (plant: PlantData) => Lesson;
+  onSelectPlant: (plant: PlantData) => void;
+  onOpenPage: (plant: PlantData) => void;
+  onBackgroundClick: () => void;
 };
 
-export default function GardenScene({ plants, stageOf, priceMissing }: Props) {
+export default function GardenScene(props: Props) {
+  const { plants, stageOf, priceMissing, selectedId } = props;
   const rows = Math.max(MIN_ROWS, Math.ceil(plants.length / COLS));
   const halfW = TILE_W / 2;
   const halfH = TILE_H / 2;
@@ -45,16 +53,16 @@ export default function GardenScene({ plants, stageOf, priceMissing }: Props) {
   const slots = Array.from({ length: rows * COLS }, (_, i) => slotPosition(i));
 
   // Draw back-to-front so nearer plants overlap farther ones.
-  const placed = plants
-    .map((plant, i) => ({ plant, ...slotPosition(i) }))
-    .sort((a, b) => a.y - b.y);
+  const placed = plants.map((plant, i) => ({ plant, ...slotPosition(i) })).sort((a, b) => a.y - b.y);
+  const selected = placed.find((p) => p.plant.id === selectedId && stageOf(p.plant) === 4);
 
   return (
     <svg
       className={styles.scene}
       viewBox={`${minX} ${minY} ${width} ${height}`}
-      role="img"
+      role="group"
       aria-label={plants.length ? `Your garden with ${plants.length} plants` : "Your empty garden plot"}
+      onClick={props.onBackgroundClick}
     >
       {/* Soil sides give the plot some depth */}
       <polygon
@@ -77,8 +85,25 @@ export default function GardenScene({ plants, stageOf, priceMissing }: Props) {
       ))}
 
       {placed.map(({ plant, x, y }) => (
-        <Plant key={plant.id} plant={plant} x={x} y={y} stage={stageOf(plant)} missingPrice={priceMissing(plant)} />
+        <Plant
+          key={plant.id}
+          plant={plant}
+          x={x}
+          y={y}
+          stage={stageOf(plant)}
+          missingPrice={priceMissing(plant)}
+          onSelect={() => props.onSelectPlant(plant)}
+        />
       ))}
+
+      {selected && (
+        <LessonBubble
+          lesson={props.lessonFor(selected.plant)}
+          x={selected.x}
+          y={selected.y}
+          onOpenPage={() => props.onOpenPage(selected.plant)}
+        />
+      )}
     </svg>
   );
 }

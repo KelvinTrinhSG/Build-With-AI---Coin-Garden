@@ -77,7 +77,7 @@ Build mode: fast
   Learner check: Plant two coins, run Demo, close the tab, and reopen it. Everything is still there. In DevTools → Network, confirm the browser only calls `/api/...`, never `api.coingecko.com`.
   Commit: `Persist the garden in localStorage`
 
-- [ ] **5. Tap a plant to read its notebook page and lesson**
+- [x] **5. Tap a plant to read its notebook page and lesson**
   Becomes usable: Tapping a plant opens its own notebook page with the recorded details, current gain or the "!" explanation, and a lesson field that saves. Tapping a sunflower shows its lesson in a bubble above it, falling back to a built-in lesson; the Demo flower always shows a built-in one. The notebook also has the "How your garden grows" and "Your seed can become this" pages.
   Why now: It completes the reflection half of the kernel and closes the core loop (steps 5–6) on top of persistent data.
   PRD ref: `prd.md > The Notebook`, `prd.md > Lessons`, `prd.md > The Core Journey` (steps 5–6)
@@ -143,4 +143,6 @@ Activity mode:
 - **Added `demoSamplePrice?: boolean` to `Plant`, and moved the demo price curve into `lib/demo.ts`.** The labelled sample fallback needs to be remembered on the plant, and keeping the curve pure makes it unit-testable.
 - **The hydration demonstration (read `localStorage` during render, see the warning, fix it) moved to the learning wrap-up, and the browser reload/console check moved to the final review.** The agent has no browser to observe console warnings in fast mode. The fix (load in `useEffect` after mount) is implemented in `hooks/useGarden.ts`.
 - **A demo plant interrupted by a reload now loads as a finished sunflower.** Previously it would have been stuck as a seed, because the simulated price isn't stored.
+- **Tapping a sunflower now shows its lesson bubble, which has a "📖 page" link; tapping any other plant opens its notebook page directly.** The PRD has both "tap a plant → its page" and "tap a sunflower → lesson above it", so one tap can't do both on a sunflower. The learner should confirm this in the final review.
+- **The 📖 button opens on the "How it grows" guide page; the "Plant your first seed" sign (slice 6) opens the new-entry page.** The notebook got tab navigation between its pages.
 

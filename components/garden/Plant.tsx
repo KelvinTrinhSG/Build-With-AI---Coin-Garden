@@ -1,4 +1,5 @@
 import type { Plant as PlantData, Stage } from "@/lib/types";
+import styles from "./garden.module.css";
 
 type Props = {
   plant: PlantData;
@@ -6,6 +7,7 @@ type Props = {
   x: number;
   y: number;
   missingPrice?: boolean;
+  onSelect?: () => void;
 };
 
 const STROKE = "var(--leaf-dark)";
@@ -46,7 +48,7 @@ function Sunflower({ cy, petal }: { cy: number; petal: string }) {
   );
 }
 
-function Growth({ stage, petal }: { stage: Stage; petal: string }) {
+export function Growth({ stage, petal }: { stage: Stage; petal: string }) {
   switch (stage) {
     case 0:
       return <ellipse cx={0} cy={-2} rx={10} ry={6} fill="var(--seed)" stroke="var(--bark-dark)" strokeWidth={2} />;
@@ -93,10 +95,29 @@ function Growth({ stage, petal }: { stage: Stage; petal: string }) {
   }
 }
 
-export default function Plant({ plant, stage, x, y, missingPrice }: Props) {
+export default function Plant({ plant, stage, x, y, missingPrice, onSelect }: Props) {
   const petal = plant.isDemo ? "var(--demo-petal)" : "var(--petal)";
   return (
-    <g transform={`translate(${x} ${y})`} data-stage={stage}>
+    <g
+      transform={`translate(${x} ${y})`}
+      data-stage={stage}
+      className={styles.plant}
+      role="button"
+      tabIndex={0}
+      aria-label={`${plant.name}, ${stage === 4 ? "in bloom" : "growing"}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect?.();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect?.();
+        }
+      }}
+    >
+      {/* Generous invisible hit area so small seeds are easy to tap */}
+      <rect x={-22} y={stage === 0 ? -24 : -110} width={44} height={stage === 0 ? 40 : 126} fill="transparent" />
       <title>
         {`${plant.name} (${plant.symbol})`}
         {missingPrice ? " — price couldn't be found" : ""}
