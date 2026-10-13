@@ -65,6 +65,9 @@ PRD ref: `prd.md > The Core Journey`.
 - **Deploy (learner's choice):** push the public GitHub repo, then on Vercel choose *Add New → Project → Import* that repo. The defaults work. Optional environment variable: `COINGECKO_API_KEY` (a CoinGecko Demo key), only if the keyless public API proves too limited.
 - **Demo recording:** open the deployed URL or localhost, in a fresh browser profile or a private window for an empty garden. Show the empty plot, add a purchase through the notebook with coin search, close the book to see the seed, press **Demo** to watch BTC grow to a sunflower, then tap it to show the lesson.
 - **Submission:** the demo video and the public GitHub repository are both required. The Vercel link is an extra, not a replacement.
+- **Live app:** https://build-with-ai-coin-garden.vercel.app/ (verified 2026-10-13: the home page, `/api/coins/search` and `/api/prices` all respond).
+- **Public repository:** https://github.com/KelvinTrinhSG/Build-With-AI---Coin-Garden
+- **Demo video:** _to be added_
 
 ## Look and Feel
 Carried from `prd.md > Look and Feel` and `scope.md > Inspiration & Identity`.

@@ -4,6 +4,8 @@ A cozy, storybook-style garden for long-term crypto investors. Every purchase yo
 
 Built for Devpost Learn's **Build With AI: Basics** hackathon.
 
+**Try it:** https://build-with-ai-coin-garden.vercel.app/
+
 ## Run it locally
 
 Requires Node.js 20+.
