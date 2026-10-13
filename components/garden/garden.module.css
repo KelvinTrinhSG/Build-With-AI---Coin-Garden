@@ -1,0 +1,6 @@
+.scene {
+  width: min(100%, 760px);
+  height: auto;
+  max-height: 62vh;
+  overflow: visible;
+}

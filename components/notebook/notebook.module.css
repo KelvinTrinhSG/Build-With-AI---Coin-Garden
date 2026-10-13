@@ -1,0 +1,148 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 10;
+}
+
+.book {
+  position: relative;
+  width: min(100%, 520px);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: var(--cream);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 28px 24px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    var(--paper-line) 31px,
+    var(--paper-line) 32px
+  );
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--bark);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pageTitle {
+  font-size: 1.6rem;
+  color: var(--bark-dark);
+}
+
+.hint {
+  margin: -8px 0 4px;
+  color: var(--slate);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-weight: 700;
+  color: var(--bark);
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border: var(--border);
+  border-radius: var(--radius-small);
+  background: var(--cream);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--brick);
+}
+
+.error {
+  margin: 0;
+  color: var(--brick-dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.muted {
+  color: var(--slate);
+  padding: 6px 10px;
+}
+
+.search {
+  position: relative;
+}
+
+.matches {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 4px;
+  background: var(--cream);
+  border: var(--border);
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow-small);
+}
+
+.match {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.match:hover,
+.match:focus-visible {
+  background: var(--cream-deep);
+}
+
+.symbol {
+  color: var(--slate);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.chosen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: var(--border);
+  border-radius: var(--radius-small);
+  background: var(--cream-deep);
+}
+
+.linkButton {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--brick);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}

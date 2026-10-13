@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Garden — Technical Spec</title>
+<!-- Companion view of spec.md. Markdown is canonical; this page only presents it. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --grass: #cfe6b0; --grass-deep: #9cc47a; --cream: #fbf3df; --cream-deep: #f1e3c0;
+    --bark: #6b4a2b; --bark-dark: #4a321c; --brick: #c2553a; --wheat: #e8b730;
+    --slate: #6f8796; --ink: #3b2a1a; --sky: #dfe9ee;
+    --border: 3px solid var(--bark); --shadow: 0 5px 0 var(--bark-dark); --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Nunito", "Segoe UI", system-ui, sans-serif; color: var(--ink); line-height: 1.55;
+    background: radial-gradient(circle at 20% 10%, #e3f1cd 0, transparent 40%), radial-gradient(circle at 80% 70%, #d7ebbd 0, transparent 45%), var(--grass); }
+  h1, h2, h3 { font-family: "Fredoka", "Segoe UI", system-ui, sans-serif; margin: 0 0 .4em; }
+  code { background: var(--cream-deep); padding: 1px 6px; border-radius: 6px; font-size: .9em; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 32px 20px 64px; }
+  .sign { text-align: center; margin: 12px 0 28px; }
+  .sign h1 { font-size: clamp(2rem, 5.5vw, 3.2rem); color: var(--cream); text-shadow: 0 4px 0 var(--bark-dark); }
+  .sign p { font-weight: 700; color: var(--bark-dark); margin: 0; font-size: 1.1rem; }
+  .badge { display: inline-block; margin-top: 12px; padding: 4px 14px; background: var(--cream-deep); border: var(--border);
+    border-radius: 999px; box-shadow: 0 3px 0 var(--bark-dark); font-weight: 700; font-size: .9rem; }
+  .panel { background: var(--cream); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px; margin-bottom: 26px; }
+  .panel h2 { font-size: 1.5rem; color: var(--bark-dark); }
+  .note { font-size: .9rem; color: var(--slate); }
+  .btn { font: 700 1rem "Nunito", sans-serif; color: var(--cream); background: var(--brick); border: var(--border); border-radius: 14px;
+    box-shadow: 0 4px 0 var(--bark-dark); padding: 8px 16px; cursor: pointer; transition: transform .06s, box-shadow .06s; }
+  .btn:active { transform: translateY(4px); box-shadow: none; }
+  .btn.alt { background: var(--cream-deep); color: var(--ink); }
+  .btn:disabled { opacity: .45; cursor: default; }
+
+  .arch svg { width: 100%; height: auto; display: block; }
+  .arch .node rect { transition: fill .2s, stroke-width .2s; }
+  .arch .node.on rect { fill: var(--wheat); stroke-width: 5; }
+  .arch .flow { opacity: .25; transition: opacity .2s; }
+  .arch .flow.on { opacity: 1; }
+  .dots { display: flex; gap: 8px; margin: 14px 0 8px; flex-wrap: wrap; }
+  .dot { width: 34px; height: 34px; border-radius: 50%; border: var(--border); background: var(--cream); font: 700 .95rem "Fredoka", sans-serif; cursor: pointer; }
+  .dot[aria-current="step"] { background: var(--wheat); }
+  .controls { display: flex; gap: 10px; margin-top: 8px; }
+  #stepTitle { font-size: 1.25rem; margin-top: 4px; }
+
+  details { background: var(--cream); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden; }
+  summary { cursor: pointer; list-style: none; padding: 12px 18px; font: 600 1.1rem "Fredoka", sans-serif; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "▸"; margin-left: auto; transition: transform .15s; }
+  details[open] summary::after { transform: rotate(90deg); }
+  .body { padding: 0 20px 16px; }
+  .side { font: 700 .75rem "Nunito", sans-serif; padding: 2px 10px; border-radius: 999px; border: 2px solid var(--bark); }
+  .side.client { background: #d9ecc4; } .side.server { background: var(--sky); } .side.pure { background: #fbe7a6; }
+  .filter { display: flex; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+  .chip { font: 700 .9rem "Nunito", sans-serif; padding: 4px 12px; border-radius: 999px; border: 2px solid var(--bark); background: var(--cream-deep); cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--wheat); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 2px dashed var(--cream-deep); vertical-align: top; }
+  th { font-family: "Fredoka", sans-serif; color: var(--bark); }
+  pre { background: #fff7e0; border: 2px solid var(--cream-deep); border-radius: 12px; padding: 12px; overflow-x: auto; font-size: .8rem; line-height: 1.35; }
+  .grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .grid .panel { margin-bottom: 0; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .sw { text-align: center; font-size: .75rem; font-weight: 700; }
+  .sw div { width: 52px; height: 52px; border: var(--border); border-radius: 12px; box-shadow: 0 3px 0 var(--bark-dark); margin-bottom: 4px; }
+  .trap { background: #fff0e6; border-left: 6px solid var(--brick); border-radius: 8px; padding: 10px 16px; }
+  footer { text-align: center; color: var(--bark-dark); font-weight: 700; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="sign">
+    <h1>Coin Garden</h1>
+    <p>Technical spec: how it's built</p>
+    <span class="badge">Spec · approved</span>
+  </header>
+
+  <section class="panel">
+    <h2>🌱 How This Works, In Plain Language</h2>
+    <p>A <strong>Next.js</strong> app on <strong>Vercel</strong>, in two halves:</p>
+    <ul>
+      <li><strong>Browser half</strong> (Client Components): the garden, plants, notebook and Demo. Purchases and lessons live in <code>localStorage</code>, a sticky note the browser keeps for this site, so every visitor has a private garden.</li>
+      <li><strong>Server half</strong> (Route Handlers): <code>/api/coins/search</code> and <code>/api/prices</code> ask CoinGecko and cache answers for about 60 seconds for everyone.</li>
+      <li>In the middle, one pure function, <code>stageFor(buyPrice, currentPrice)</code>, decides how grown every plant is.</li>
+    </ul>
+  </section>
+
+  <section class="panel arch">
+    <h2>🗺️ The Core Journey Through the System</h2>
+    <svg viewBox="0 0 960 360" role="img" aria-labelledby="archT archD">
+      <title id="archT">Coin Garden architecture</title>
+      <desc id="archD">Browser components (GardenScene, Notebook, CoinSearch, DemoButton) use the useGarden and useDemo hooks, which use stageFor and localStorage. The browser calls the server routes /api/coins/search and /api/prices, which call CoinGecko.</desc>
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10z" fill="#4a321c"/></marker></defs>
+      <!-- zones -->
+      <rect x="10" y="10" width="560" height="340" rx="20" fill="#e6f3d6" stroke="#6b4a2b" stroke-width="2" stroke-dasharray="8 6"/>
+      <text x="30" y="38" font-family="Fredoka" font-size="18" fill="#4a321c">Browser · Client Components</text>
+      <rect x="590" y="10" width="200" height="340" rx="20" fill="#e9f0f4" stroke="#6b4a2b" stroke-width="2" stroke-dasharray="8 6"/>
+      <text x="606" y="38" font-family="Fredoka" font-size="18" fill="#4a321c">Server · Vercel</text>
+      <g font-family="Fredoka" font-size="15" text-anchor="middle" fill="#3b2a1a">
+        <g class="node" id="n-scene"><rect x="30" y="60" width="160" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="110" y="90">GardenScene · Plant</text></g>
+        <g class="node" id="n-book"><rect x="210" y="60" width="160" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="290" y="90">Notebook</text></g>
+        <g class="node" id="n-search"><rect x="390" y="60" width="160" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="470" y="90">CoinSearch</text></g>
+        <g class="node" id="n-demo"><rect x="30" y="140" width="160" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="110" y="170">DemoButton · useDemo</text></g>
+        <g class="node" id="n-garden"><rect x="210" y="140" width="160" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="290" y="170">useGarden</text></g>
+        <g class="node" id="n-client"><rect x="390" y="140" width="160" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="470" y="170">priceClient</text></g>
+        <g class="node" id="n-stage"><rect x="30" y="240" width="200" height="50" rx="14" fill="#fbe7a6" stroke="#6b4a2b" stroke-width="3"/><text x="130" y="270">stageFor() · lessons</text></g>
+        <g class="node" id="n-ls"><rect x="260" y="240" width="200" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="360" y="263">localStorage</text><text x="360" y="281" font-size="12">coin-garden:v1</text></g>
+        <g class="node" id="n-apisearch"><rect x="605" y="60" width="170" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="690" y="83">/api/coins/search</text><text x="690" y="101" font-size="12">cache 60s</text></g>
+        <g class="node" id="n-apiprice"><rect x="605" y="140" width="170" height="50" rx="14" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="690" y="163">/api/prices</text><text x="690" y="181" font-size="12">cache 60s</text></g>
+        <g class="node" id="n-cg"><rect x="815" y="95" width="130" height="60" rx="14" fill="#dfe9ee" stroke="#6b4a2b" stroke-width="3"/><text x="880" y="123">CoinGecko</text><text x="880" y="141" font-size="12">API v3</text></g>
+      </g>
+      <g stroke="#4a321c" stroke-width="3" fill="none" marker-end="url(#ar)">
+        <line class="flow" id="f-search" x1="550" y1="85" x2="600" y2="85"/>
+        <line class="flow" id="f-price" x1="550" y1="165" x2="600" y2="165"/>
+        <line class="flow" id="f-cg1" x1="775" y1="85" x2="812" y2="112"/>
+        <line class="flow" id="f-cg2" x1="775" y1="165" x2="812" y2="140"/>
+        <line class="flow" id="f-book-g" x1="290" y1="110" x2="290" y2="135"/>
+        <line class="flow" id="f-g-client" x1="370" y1="165" x2="385" y2="165"/>
+        <line class="flow" id="f-g-ls" x1="310" y1="190" x2="340" y2="235"/>
+        <line class="flow" id="f-g-stage" x1="260" y1="190" x2="170" y2="235"/>
+        <line class="flow" id="f-g-scene" x1="230" y1="140" x2="160" y2="115"/>
+        <line class="flow" id="f-demo-stage" x1="110" y1="190" x2="110" y2="235"/>
+        <line class="flow" id="f-demo-g" x1="190" y1="165" x2="205" y2="165"/>
+      </g>
+    </svg>
+    <div class="dots" id="dots" aria-label="Journey steps"></div>
+    <h3 id="stepTitle"></h3>
+    <p id="stepBody"></p>
+    <div class="controls"><button class="btn alt" id="prev">← Back</button><button class="btn" id="next">Next →</button></div>
+  </section>
+
+  <section class="panel">
+    <h2>🧠 Your Question: Server vs Browser in Next.js</h2>
+    <div class="grid">
+      <div><span class="side server">Server</span><p>Route Handlers in <code>app/api/**/route.ts</code>. They talk to CoinGecko, cache for 60 seconds, and could hold <code>COINGECKO_API_KEY</code>. They can't see your <code>localStorage</code>.</p></div>
+      <div><span class="side client">Browser</span><p>Anything with clicks, animation or <code>localStorage</code>, marked <code>"use client"</code>: the garden, notebook, CoinSearch and Demo.</p></div>
+    </div>
+    <p class="trap"><strong>The trap:</strong> Next.js renders HTML on the server first, before it knows what is in your garden. Read <code>localStorage</code> in <code>useEffect</code> (after mount), not during render, or you'll get a <em>hydration mismatch</em>. During the build we'll trigger it on purpose, fix it, and check the Network tab to confirm the browser only calls <code>/api/…</code>.</p>
+  </section>
+
+  <section class="panel">
+    <h2>🧩 Components</h2>
+    <div class="filter" role="group" aria-label="Filter components">
+      <button class="chip" aria-pressed="true" data-f="all">All</button>
+      <button class="chip" aria-pressed="false" data-f="client">Browser</button>
+      <button class="chip" aria-pressed="false" data-f="server">Server</button>
+      <button class="chip" aria-pressed="false" data-f="pure">Pure logic</button>
+    </div>
+    <div id="comps"></div>
+  </section>
+
+  <section class="panel">
+    <h2>🗃️ Data Model</h2>
+    <pre>type Plant = {
+  id: string;           coinId: string;      // CoinGecko id, e.g. "bitcoin"
+  symbol: string;       name: string;        thumb?: string;
+  buyPrice: number;     // USD per coin, > 0
+  amount: number;       // > 0
+  date: string;         // "YYYY-MM-DD"
+  lesson?: string;      isDemo?: boolean;    demoComplete?: boolean;
+  createdAt: string;    // ISO; decides plot order
+};
+type GardenSave = { version: 1; plants: Plant[] };   // localStorage["coin-garden:v1"]</pre>
+    <table>
+      <tr><th>Data</th><th>Lives in</th><th>Leave &amp; come back</th></tr>
+      <tr><td>Plants, lessons</td><td>localStorage</td><td>Restored after mount</td></tr>
+      <tr><td>Current prices</td><td>React state + 60s server cache</td><td>Fetched fresh</td></tr>
+      <tr><td>Demo animation price</td><td>React state (useDemo)</td><td>Not stored; finished demo reloads as sunflower</td></tr>
+      <tr><td>Open page / selected plant</td><td>React state</td><td>Resets to garden</td></tr>
+    </table>
+    <h3 style="margin-top:14px">Growth stages: <code>stageFor()</code></h3>
+    <table>
+      <tr><th>current ÷ buy</th><th>Stage</th></tr>
+      <tr><td>&lt; 1.25 or no price</td><td>0 · 🌰 Seed</td></tr>
+      <tr><td>≥ 1.25</td><td>1 · 🌱 Sprout</td></tr>
+      <tr><td>≥ 1.5</td><td>2 · 🌿 Young plant</td></tr>
+      <tr><td>≥ 1.75</td><td>3 · 🌾 Bud</td></tr>
+      <tr><td>≥ 2</td><td>4 · 🌻 Sunflower</td></tr>
+    </table>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>🎨 Look and Feel → theme.css</h2>
+      <p class="note">The only file that defines colours. Starting values:</p>
+      <div class="swatches">
+        <div class="sw"><div style="background:#cfe6b0"></div>grass</div>
+        <div class="sw"><div style="background:#9cc47a"></div>grass-deep</div>
+        <div class="sw"><div style="background:#fbf3df"></div>cream</div>
+        <div class="sw"><div style="background:#f1e3c0"></div>cream-deep</div>
+        <div class="sw"><div style="background:#6b4a2b"></div>bark</div>
+        <div class="sw"><div style="background:#4a321c"></div>bark-dark</div>
+        <div class="sw"><div style="background:#c2553a"></div>brick</div>
+        <div class="sw"><div style="background:#e8b730"></div>wheat</div>
+        <div class="sw"><div style="background:#6f8796"></div>slate</div>
+        <div class="sw"><div style="background:#8a6239"></div>soil</div>
+      </div>
+      <p>Fredoka and Nunito via <code>next/font</code>. Chunky 3px borders, 4–6px solid shadows, and buttons that press down 4px. Ambient motion respects <code>prefers-reduced-motion</code>.</p>
+    </section>
+    <section class="panel">
+      <h2>🚀 Where It Runs</h2>
+      <pre>npm install
+npm run dev     # → http://localhost:3000
+npm test        # Vitest: growth + storage</pre>
+      <p><strong>Deploy:</strong> push the public GitHub repo, then Vercel → Import project. Defaults work. Optional env: <code>COINGECKO_API_KEY</code>.</p>
+      <p class="note">Submission needs the demo video and the public repo. The Vercel link is an extra.</p>
+    </section>
+  </div>
+  <div style="height:26px"></div>
+
+  <details>
+    <summary>📁 File Structure</summary>
+    <div class="body"><pre>coin-garden/
+├── app/
+│   ├── layout.tsx            # fonts, imports theme.css + globals.css
+│   ├── page.tsx              # server shell → &lt;CoinGardenApp /&gt;
+│   ├── theme.css             # ONLY place colours/tokens live
+│   ├── globals.css           # resets, .chunky, titles, motion
+│   └── api/
+│       ├── coins/search/route.ts
+│       └── prices/route.ts
+├── components/
+│   ├── CoinGardenApp.tsx     # "use client" root
+│   ├── TopBar.tsx · DemoButton.tsx
+│   ├── garden/  GardenScene · Plant · LessonBubble · WelcomeSign
+│   └── notebook/ Notebook · GuidePage · PreviewPage · NewEntryPage · PlantPage · CoinSearch
+├── hooks/       useGarden.ts · useDemo.ts
+├── lib/         growth.ts(+test) · lessons.ts · storage.ts(+test) · priceClient.ts · coingecko.ts · types.ts
+├── devpost/     planning docs
+├── .env.example · package.json · tsconfig.json · vitest.config.ts · README.md</pre></div>
+  </details>
+
+  <details>
+    <summary>🌐 External Services</summary>
+    <div class="body">
+      <p><strong>CoinGecko API v3</strong> (<a href="https://docs.coingecko.com/reference/introduction">docs</a>)</p>
+      <ul>
+        <li><code>GET /api/v3/search?query={q}</code> → <code>{ coins: [{ id, name, symbol, thumb, market_cap_rank }] }</code></li>
+        <li><code>GET /api/v3/simple/price?ids=bitcoin,ethereum&amp;vs_currencies=usd</code> → <code>{ bitcoin: { usd: 64000.12 } }</code></li>
+        <li>No key for the public endpoint; an optional Demo key goes in the <code>x-cg-demo-api-key</code> header. Free, low rate limits, protected by the 60s cache.</li>
+        <li class="note">Unverified: keyless access, current limits and fields. Check early in the build.</li>
+      </ul>
+      <p><strong>Vercel</strong> (<a href="https://vercel.com/docs/frameworks/nextjs">docs</a>): free Hobby plan, deploys from GitHub.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>⚠️ Important Failure Modes</summary>
+    <div class="body"><table>
+      <tr><th>What breaks</th><th>What you see</th></tr>
+      <tr><td>CoinGecko down or rate-limited</td><td>Seed with "!" and "Price couldn't be found right now." The rest still works.</td></tr>
+      <tr><td>Coin search fails</td><td>"Couldn't reach the coin list — try again." The entry can't be saved without a coin.</td></tr>
+      <tr><td>Reading localStorage during render</td><td>Prevented by loading after mount; a neutral plot shows until loaded.</td></tr>
+      <tr><td>Corrupt saved data</td><td>Empty garden plus a console warning, no crash.</td></tr>
+    </table></div>
+  </details>
+
+  <details>
+    <summary>✂️ What Was Simplified and Why</summary>
+    <div class="body"><ul>
+      <li><strong>localStorage</strong> instead of a database or accounts. Multi-device is deferred.</li>
+      <li><strong>Prices fetched on open</strong>, with no streaming or background refresh.</li>
+      <li><strong>Demo uses a simulated price</strong>, clearly tinted and labelled; the growth logic is real.</li>
+      <li><strong>Hand-drawn SVG</strong> instead of a game engine.</li>
+      <li><strong>USD only.</strong></li>
+    </ul></div>
+  </details>
+
+  <details open>
+    <summary>🧭 Decisions and Open Issues</summary>
+    <div class="body">
+      <p><strong>Your choices:</strong> Next.js on Vercel · localStorage on the player's device · coin search with suggestions · CoinGecko via API routes with a 60s cache · CSS Modules + one theme.css.</p>
+      <p><strong>Derived by the agent:</strong> pure <code>stageFor</code> + <code>STAGES</code> · <code>useGarden</code> / <code>useDemo</code> · Vitest · deterministic built-in lesson per plant · 4×3 plot that grows rows · offline demo fallback: a labelled 60,000 USD sample.</p>
+      <p><strong>Confirmed:</strong> prices in USD · Demo buy price = current BTC (labelled sample only if offline).</p>
+      <p><strong>Open:</strong> verify the Buffett quote source · verify CoinGecko keyless access and the Next.js caching API early in the build.</p>
+    </div>
+  </details>
+
+  <footer>Companion to <code>devpost/spec.md</code> — the Markdown file is the source of truth.</footer>
+</div>
+
+<script>
+  const STEPS = [
+    { t: "1 · Arrive", b: "The server sends the page shell. In the browser, useGarden reads localStorage after mount. With no plants, GardenScene shows the empty plot and welcome sign.", n: ["n-scene", "n-garden", "n-ls"], f: ["f-g-ls", "f-g-scene"] },
+    { t: "2 · Plant", b: "The sign or 📖 opens the Notebook. Typing in CoinSearch calls /api/coins/search, which asks CoinGecko /search (cached 60s).", n: ["n-book", "n-search", "n-apisearch", "n-cg"], f: ["f-search", "f-cg1"] },
+    { t: "3 · See the seed", b: "On a valid save, useGarden adds a Plant and writes localStorage. Closing the book reveals the seed in the next free slot.", n: ["n-book", "n-garden", "n-ls", "n-scene"], f: ["f-book-g", "f-g-ls", "f-g-scene"] },
+    { t: "4 · Watch it grow", b: "useGarden asks priceClient → /api/prices → CoinGecko /simple/price. stageFor(buy, current) picks each plant's stage.", n: ["n-garden", "n-client", "n-apiprice", "n-cg", "n-stage", "n-scene"], f: ["f-g-client", "f-price", "f-cg2", "f-g-stage", "f-g-scene"] },
+    { t: "5 · Revisit", b: "Tapping a plant opens its PlantPage in the Notebook; the lesson saves to localStorage on blur.", n: ["n-scene", "n-book", "n-garden", "n-ls"], f: ["f-book-g", "f-g-ls"] },
+    { t: "6 · Bloom and reflect", b: "Tapping a sunflower shows LessonBubble: the plant's own lesson, or a built-in one from lessons.ts.", n: ["n-scene", "n-stage"], f: ["f-g-stage"] },
+    { t: "7 · Demo", b: "useDemo resets the single BTC demo plant and animates a simulated price to 2× over 10s. The same stageFor drives each stage; it ends as a tinted 'Demo' sunflower.", n: ["n-demo", "n-stage", "n-garden", "n-ls", "n-scene"], f: ["f-demo-stage", "f-demo-g", "f-g-ls"] },
+    { t: "8 · Come back", b: "Next visit: localStorage restores the garden after mount, and prices are fetched fresh.", n: ["n-garden", "n-ls", "n-client", "n-apiprice", "n-cg", "n-scene"], f: ["f-g-ls", "f-g-client", "f-price", "f-cg2", "f-g-scene"] },
+  ];
+  const dots = document.getElementById("dots");
+  let cur = 0;
+  STEPS.forEach((_, i) => { const d = document.createElement("button"); d.className = "dot"; d.textContent = i + 1;
+    d.setAttribute("aria-label", "Step " + (i + 1)); d.onclick = () => go(i); dots.appendChild(d); });
+  function go(i) {
+    cur = Math.max(0, Math.min(STEPS.length - 1, i));
+    const s = STEPS[cur];
+    document.querySelectorAll(".node").forEach((n) => n.classList.toggle("on", s.n.includes(n.id)));
+    document.querySelectorAll(".flow").forEach((f) => f.classList.toggle("on", s.f.includes(f.id)));
+    document.getElementById("stepTitle").textContent = s.t;
+    document.getElementById("stepBody").textContent = s.b;
+    [...dots.children].forEach((d, j) => j === cur ? d.setAttribute("aria-current", "step") : d.removeAttribute("aria-current"));
+    document.getElementById("prev").disabled = cur === 0;
+    document.getElementById("next").disabled = cur === STEPS.length - 1;
+  }
+  document.getElementById("prev").onclick = () => go(cur - 1);
+  document.getElementById("next").onclick = () => go(cur + 1);
+  go(0);
+
+  const COMPS = [
+    ["client", "CoinGardenApp", "components/CoinGardenApp.tsx", "Client root: owns useGarden + useDemo, the open notebook page and the selected plant.", "The Core Journey"],
+    ["client", "GardenScene", "components/garden/GardenScene.tsx", "Isometric SVG world, plot slots (4×3, adds rows), ambient motion; welcome sign only when empty.", "The Garden · States and Boundaries"],
+    ["client", "Plant", "components/garden/Plant.tsx", "SVG for stages 0–4, a \"!\" badge when the price is missing, demo tint + \"Demo\" label.", "The Garden · Demo"],
+    ["client", "LessonBubble", "components/garden/LessonBubble.tsx", "Wooden speech-sign above a tapped sunflower.", "Lessons"],
+    ["client", "WelcomeSign", "components/garden/WelcomeSign.tsx", "\"Plant your first seed\"; opens the new-entry page.", "Screens and Layout"],
+    ["client", "TopBar · DemoButton", "components/TopBar.tsx · DemoButton.tsx", "Name + 📖 pill; brick-red Demo, disabled while running.", "Screens and Layout · Demo"],
+    ["client", "Notebook", "components/notebook/*", "Book panel with GuidePage, PreviewPage, NewEntryPage (validation) and PlantPage (details, gain or \"!\", lesson saved on blur).", "The Notebook · Lessons"],
+    ["client", "CoinSearch", "components/notebook/CoinSearch.tsx", "Debounced (~300ms, 2+ chars) autocomplete with up to 8 matches; must pick one to save.", "The Notebook"],
+    ["client", "useGarden", "hooks/useGarden.ts", "Plants + persistence (load after mount) + price fetch on mount.", "Live Prices · States and Boundaries"],
+    ["client", "useDemo", "hooks/useDemo.ts", "Single BTC demo plant; 10s simulated price to 2× via requestAnimationFrame; never touches real plants.", "Demo"],
+    ["client", "priceClient", "lib/priceClient.ts", "Browser fetch wrappers for our /api routes; null on failure.", "Live Prices"],
+    ["pure", "Growth Logic", "lib/growth.ts", "stageFor(buy, current) + STAGES table. Unit-tested.", "The Garden"],
+    ["pure", "Lessons", "lib/lessons.ts", "Two built-in lessons; lessonFor(plant) picks own lesson or a deterministic built-in.", "Lessons"],
+    ["pure", "Storage", "lib/storage.ts", "localStorage[\"coin-garden:v1\"]; defensive parse, empty garden on corruption. Unit-tested.", "States and Boundaries"],
+    ["server", "CoinGecko client", "lib/coingecko.ts", "server-only; adds x-cg-demo-api-key if COINGECKO_API_KEY is set.", "Live Prices"],
+    ["server", "API: Coin Search", "app/api/coins/search/route.ts", "GET ?q= → { coins: [{ id, name, symbol, thumb }] } (≤8, cache 60s, 502 on upstream error).", "The Notebook"],
+    ["server", "API: Prices", "app/api/prices/route.ts", "GET ?ids= → { prices: { id: usd } } (missing coins omitted, ≤50 ids, cache 60s, 502 on error).", "Live Prices"],
+  ];
+  const label = { client: "Browser", server: "Server", pure: "Pure logic" };
+  const comps = document.getElementById("comps");
+  comps.innerHTML = COMPS.map(([side, name, file, what, prd]) =>
+    `<details data-side="${side}"><summary><span class="side ${side}">${label[side]}</span>${name}</summary>
+      <div class="body"><p><code>${file}</code></p><p>${what}</p><p class="note">PRD ref: prd.md › ${prd}</p></div></details>`).join("");
+  document.querySelectorAll(".chip").forEach((c) => c.onclick = () => {
+    document.querySelectorAll(".chip").forEach((x) => x.setAttribute("aria-pressed", String(x === c)));
+    comps.querySelectorAll("details").forEach((d) => d.hidden = !(c.dataset.f === "all" || d.dataset.side === c.dataset.f));
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Garden — Scope</title>
+<!-- Companion view of scope.md. Markdown is canonical; this page only presents it. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --grass: #cfe6b0;
+    --grass-deep: #9cc47a;
+    --cream: #fbf3df;
+    --cream-deep: #f1e3c0;
+    --bark: #6b4a2b;
+    --bark-dark: #4a321c;
+    --brick: #c2553a;
+    --wheat: #e8b730;
+    --slate: #6f8796;
+    --ink: #3b2a1a;
+    --border: 3px solid var(--bark);
+    --shadow: 0 5px 0 var(--bark-dark);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Nunito", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 20% 10%, #e3f1cd 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, #d7ebbd 0, transparent 45%),
+      var(--grass);
+    line-height: 1.55;
+  }
+  h1, h2, h3 { font-family: "Fredoka", "Segoe UI", system-ui, sans-serif; margin: 0 0 .4em; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+
+  .sign {
+    text-align: center;
+    margin: 12px 0 28px;
+  }
+  .sign h1 {
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    color: var(--cream);
+    text-shadow: 0 4px 0 var(--bark-dark), 0 0 1px var(--bark-dark);
+    letter-spacing: .5px;
+  }
+  .sign p { font-size: 1.15rem; font-weight: 700; color: var(--bark-dark); margin: 0; }
+  .badge {
+    display: inline-block; margin-top: 12px; padding: 4px 14px;
+    background: var(--wheat); border: var(--border); border-radius: 999px;
+    box-shadow: 0 3px 0 var(--bark-dark); font-weight: 700; font-size: .9rem;
+  }
+
+  .panel {
+    background: var(--cream);
+    border: var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px 24px;
+    margin-bottom: 26px;
+  }
+  .panel h2 { font-size: 1.5rem; color: var(--bark-dark); }
+  .kernel { background: #fff7e0; border-color: var(--bark); }
+  .kernel p { font-size: 1.12rem; margin: 0; }
+
+  .grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grid .panel { margin-bottom: 0; }
+
+  /* Loop diagram */
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .diagram .fallback { display: none; }
+  .diagram text { font-family: "Fredoka", "Segoe UI", sans-serif; }
+
+  /* Growth stepper */
+  .growth { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; }
+  @media (max-width: 640px) { .growth { grid-template-columns: 1fr; } }
+  .plot {
+    background: var(--grass-deep); border: var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); aspect-ratio: 1; display: grid; place-items: center;
+  }
+  .plot svg { width: 80%; height: 80%; }
+  .stages { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
+  .btn {
+    font: 700 1rem "Nunito", sans-serif; color: var(--cream);
+    background: var(--brick); border: var(--border); border-radius: 14px;
+    box-shadow: 0 4px 0 var(--bark-dark); padding: 8px 14px; cursor: pointer;
+    transition: transform .06s, box-shadow .06s;
+  }
+  .btn:active, .btn[aria-pressed="true"] { transform: translateY(4px); box-shadow: none; }
+  .btn.alt { background: var(--cream-deep); color: var(--ink); }
+  .btn.alt[aria-pressed="true"] { background: var(--wheat); }
+  .stage-label { font: 600 1.3rem "Fredoka", sans-serif; }
+  .stage-gain { color: var(--slate); font-weight: 700; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 2px dashed var(--cream-deep); }
+  th { font-family: "Fredoka", sans-serif; color: var(--bark); }
+
+  /* Now / Later / Cut */
+  details {
+    background: var(--cream); border: var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); margin-bottom: 18px; overflow: hidden;
+  }
+  summary {
+    cursor: pointer; list-style: none; padding: 14px 20px;
+    font: 600 1.25rem "Fredoka", sans-serif; display: flex; align-items: center; gap: 12px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "▸"; margin-left: auto; transition: transform .15s; }
+  details[open] summary::after { transform: rotate(90deg); }
+  .tag { padding: 2px 12px; border-radius: 999px; border: 2px solid var(--bark); font-size: .9rem; }
+  .now .tag { background: var(--wheat); }
+  .later .tag { background: #cdd9e0; }
+  .cut .tag { background: #efc1b4; }
+  details ul { margin: 0; padding: 4px 24px 18px 44px; }
+  details li { margin-bottom: 6px; }
+  .why { color: var(--slate); }
+
+  blockquote {
+    margin: 10px 0; padding: 10px 16px; background: #fff7e0;
+    border-left: 6px solid var(--wheat); border-radius: 8px; font-style: italic;
+  }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .sw {
+    width: 46px; height: 46px; border: var(--border); border-radius: 12px;
+    box-shadow: 0 3px 0 var(--bark-dark);
+  }
+  .note { font-size: .9rem; color: var(--slate); }
+  footer { text-align: center; color: var(--bark-dark); font-weight: 700; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="sign">
+    <h1>Coin Garden</h1>
+    <p>Every crypto purchase is a seed. Patience grows it into a sunflower.</p>
+    <span class="badge">Scope · approved · working title</span>
+  </header>
+
+  <section class="panel kernel">
+    <h2>🌻 The Unique Kernel</h2>
+    <p>Buy-and-hold investing shown as a gentle, patient garden instead of a stressful chart. Each purchase is a seed. It grows only as the price rises toward x2 and blooms into a golden sunflower at x2. <strong>A loss never kills it; it just stays a seed.</strong> Flowers hold lessons about patience and discipline.</p>
+  </section>
+
+  <section class="panel diagram">
+    <h2>🔁 The Core Loop</h2>
+    <svg viewBox="0 0 900 300" role="img" aria-labelledby="loopTitle loopDesc">
+      <title id="loopTitle">Coin Garden core loop</title>
+      <desc id="loopDesc">The investor writes a purchase in the notebook, a seed appears in the garden, a price API or the Demo button sets the gain, the plant grows through stages up to a sunflower at x2, and tapping a plant reopens its notebook page.</desc>
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#4a321c"/>
+        </marker>
+      </defs>
+      <g font-size="17" text-anchor="middle" fill="#3b2a1a">
+        <!-- Investor -->
+        <rect x="20" y="105" width="140" height="80" rx="16" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="90" y="138" font-weight="600">🧑‍🌾 Investor</text>
+        <text x="90" y="162" font-size="13">(the learner)</text>
+        <!-- Notebook -->
+        <rect x="215" y="105" width="150" height="80" rx="16" fill="#fff7e0" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="290" y="138" font-weight="600">📒 Notebook</text>
+        <text x="290" y="162" font-size="13">coin · price · amount · date</text>
+        <!-- Seed in garden -->
+        <rect x="420" y="105" width="150" height="80" rx="16" fill="#cfe6b0" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="495" y="138" font-weight="600">🌰 Seed planted</text>
+        <text x="495" y="162" font-size="13">one plant per purchase</text>
+        <!-- Price -->
+        <rect x="420" y="10" width="150" height="62" rx="16" fill="#e1e9ee" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="495" y="37" font-weight="600">📈 Price</text>
+        <text x="495" y="58" font-size="13">CoinGecko · or Demo</text>
+        <!-- Growth -->
+        <rect x="625" y="105" width="150" height="80" rx="16" fill="#fbe7a6" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="700" y="138" font-weight="600">🌱 → 🌻 Grows</text>
+        <text x="700" y="162" font-size="13">by gain over buy price</text>
+        <!-- Lesson -->
+        <rect x="625" y="225" width="150" height="62" rx="16" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="700" y="252" font-weight="600">📜 Lesson</text>
+        <text x="700" y="273" font-size="13">held by the flower</text>
+        <!-- Revisit -->
+        <rect x="215" y="225" width="150" height="62" rx="16" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/>
+        <text x="290" y="252" font-weight="600">👆 Tap plant</text>
+        <text x="290" y="273" font-size="13">reopens its page</text>
+      </g>
+      <g stroke="#4a321c" stroke-width="3" fill="none" marker-end="url(#arrow)">
+        <line x1="160" y1="145" x2="210" y2="145"/>
+        <line x1="365" y1="145" x2="415" y2="145"/>
+        <line x1="570" y1="145" x2="620" y2="145"/>
+        <line x1="570" y1="41" x2="690" y2="100"/>
+        <line x1="700" y1="185" x2="700" y2="220"/>
+        <path d="M495,185 Q495,256 370,256"/>
+        <path d="M215,256 Q90,256 90,190"/>
+      </g>
+      <text x="830" y="150" font-size="15" text-anchor="middle" fill="#6f8796" font-family="Nunito, sans-serif" font-weight="700">come back
+        <tspan x="830" dy="18">later ↺</tspan></text>
+    </svg>
+    <p class="note">Investor → writes a purchase in the notebook → a seed appears → price (live or Demo) sets the gain → the plant grows toward a sunflower → tap any plant to reopen its notebook page.</p>
+  </section>
+
+  <section class="panel">
+    <h2>🌱 How a Plant Grows</h2>
+    <div class="growth">
+      <div class="plot" aria-live="polite">
+        <svg id="plant" viewBox="0 0 100 100" role="img" aria-label="Plant stage"></svg>
+      </div>
+      <div>
+        <div class="stage-label" id="stageLabel">Seed</div>
+        <div class="stage-gain" id="stageGain">Loss, or below +25%</div>
+        <div class="stages" role="group" aria-label="Choose a growth stage">
+          <button class="btn alt" data-stage="0">Seed</button>
+          <button class="btn alt" data-stage="1">+25%</button>
+          <button class="btn alt" data-stage="2">+50%</button>
+          <button class="btn alt" data-stage="3">+75%</button>
+          <button class="btn alt" data-stage="4">x2</button>
+        </div>
+        <button class="btn" id="demo">▶ Demo: simulate a price rise</button>
+        <p class="note">This is a preview of the planned stages; the final art is decided in the PRD and build.</p>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Gain over buy price</th><th>Plant</th></tr></thead>
+      <tbody>
+        <tr><td>Loss, or below +25%</td><td>🌰 Seed (unchanged, never wilts)</td></tr>
+        <tr><td>+25%</td><td>🌱 Small sprout, 2 leaves</td></tr>
+        <tr><td>+50%</td><td>🌿 Taller, 4 leaves</td></tr>
+        <tr><td>+75%</td><td>🌾 Bud appears</td></tr>
+        <tr><td>+100% (x2)</td><td>🌻 Golden sunflower in full bloom</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>🧑‍🌾 Who It's For</h2>
+      <p>The learner: a long-term buy-and-hold crypto investor who also loves games like Stardew Valley. Today, their purchase history lives on exchanges and in numbers. They want a personal, visual record that rewards patience instead of feeding the urge to check charts.</p>
+    </section>
+    <section class="panel">
+      <h2>💛 Why It Matters</h2>
+      <p>The garden turns a habit they care about, patient buy-and-hold, into something calm and rewarding to look at. It is also practice toward their learning goals: building with AI, clean architecture, and product design that is pleasant for users.</p>
+    </section>
+  </div>
+  <div style="height:26px"></div>
+
+  <section class="panel">
+    <h2>🎬 What "Working" Looks Like</h2>
+    <p>The learner opens the app and writes a purchase in the notebook. A seed appears in the garden. They press <strong>Demo</strong>, which simulates the price rising, and they watch their plant grow stage by stage: sprout, 4 leaves, bud, then a golden sunflower at x2. Tapping the plant shows its notebook entry.</p>
+    <p><strong>The "oh, that's cool" beat:</strong> the seed growing into a sunflower in front of you.</p>
+  </section>
+
+  <section class="panel">
+    <h2>📜 The Two Built-in Lessons</h2>
+    <blockquote>"We don't have to be smarter than the rest. We have to be more disciplined than the rest."<br><span class="note">Widely attributed to Warren Buffett; check the original source before shipping.</span></blockquote>
+    <blockquote>"Plants need time to grow; fruit doesn't appear in a day."</blockquote>
+  </section>
+
+  <section class="panel">
+    <h2>🎨 Inspiration &amp; Identity</h2>
+    <p><strong>Stardew Valley</strong> for the cozy farming mood. The visual style is borrowed from another farm app the learner described, <em>visuals only, none of its mechanics</em>:</p>
+    <ul>
+      <li>A warm, rounded picture-book look in earthy colours, all defined in one single theme file.</li>
+      <li>Fredoka for headings, Nunito for body text.</li>
+      <li>"Chunky" wooden-toy UI: thick 3px brown borders, large radius, solid 4–6px drop shadow. Buttons press down 4px when clicked.</li>
+      <li>Titles painted onto the scene in cream text with a brown shadow, like a wooden sign.</li>
+      <li>One isometric SVG farm world sits behind the UI, with panels floating on top of it.</li>
+    </ul>
+    <div class="swatches" aria-label="Palette preview">
+      <div class="sw" style="background:#cfe6b0" title="Grass"></div>
+      <div class="sw" style="background:#fbf3df" title="Paper cream"></div>
+      <div class="sw" style="background:#6b4a2b" title="Bark brown"></div>
+      <div class="sw" style="background:#c2553a" title="Brick red"></div>
+      <div class="sw" style="background:#e8b730" title="Wheat gold"></div>
+      <div class="sw" style="background:#6f8796" title="Slate blue-grey"></div>
+    </div>
+    <p class="note">These swatches are approximations for this page; exact values get set in the PRD/spec.</p>
+  </section>
+
+  <h2 style="color:var(--bark-dark); margin: 6px 4px 14px;">✂️ The Boundary</h2>
+
+  <details class="now" open>
+    <summary><span class="tag">Now</span> In the proof of concept</summary>
+    <ul>
+      <li>Notebook entry: coin, buy price, amount, date.</li>
+      <li>A garden scene in the picture-book style, with one plant per purchase.</li>
+      <li>Five growth stages driven by gain over the buy price.</li>
+      <li>Current price from a free price API (CoinGecko or similar).</li>
+      <li><strong>Demo</strong> button that simulates a price rise so growth can be seen in seconds.</li>
+      <li>Tap a plant to view its notebook entry.</li>
+      <li>Two built-in lessons.</li>
+      <li>The garden is saved between visits, so plants are never lost.</li>
+    </ul>
+  </details>
+
+  <details class="later">
+    <summary><span class="tag">Later</span> Worth doing, just not now</summary>
+    <ul>
+      <li>Selling a coin, and writing your own lesson into the flower at the moment you sell.</li>
+      <li>Sold plants stay in the garden forever, marked as sold.</li>
+      <li>Richer farm progression: fences, raised beds, a more detailed isometric world.</li>
+    </ul>
+  </details>
+
+  <details class="cut">
+    <summary><span class="tag">Cut</span> Explicitly left out</summary>
+    <ul>
+      <li><strong>Up/Down calls, leaderboards, tiers, buyable equipment</strong> <span class="why">— the learner only wants the reference app's visual style, not its mechanics.</span></li>
+      <li><strong>Syncing with exchanges or wallets</strong> <span class="why">— manual notebook entry proves the idea and avoids API keys and credentials.</span></li>
+      <li><strong>Wilting or dying plants on losses</strong> <span class="why">— goes against the kernel; losses simply stay seeds.</span></li>
+    </ul>
+  </details>
+
+  <footer>Companion to <code>devpost/scope.md</code> — the Markdown file is the source of truth.</footer>
+</div>
+
+<script>
+  // Growth stages mirror the table in scope.md.
+  const STAGES = [
+    { label: "Seed", gain: "Loss, or below +25%" },
+    { label: "Small sprout, 2 leaves", gain: "+25% over buy price" },
+    { label: "Taller, 4 leaves", gain: "+50% over buy price" },
+    { label: "Bud appears", gain: "+75% over buy price" },
+    { label: "Golden sunflower 🌻", gain: "x2 — goal reached" },
+  ];
+
+  const soil = '<ellipse cx="50" cy="86" rx="34" ry="9" fill="#7a5532" stroke="#4a321c" stroke-width="2"/>';
+  const seed = '<ellipse cx="50" cy="82" rx="7" ry="5" fill="#a87a4a" stroke="#4a321c" stroke-width="2"/>';
+  const leaf = (x, y, dir) =>
+    `<path d="M${x},${y} q${12 * dir},-10 ${22 * dir},-2 q-${10 * dir},10 -${22 * dir},2z" fill="#6fae4a" stroke="#3d6b2a" stroke-width="2"/>`;
+  const stem = (top) =>
+    `<path d="M50,82 L50,${top}" stroke="#3d6b2a" stroke-width="4" stroke-linecap="round"/>`;
+
+  function plantSvg(stage) {
+    if (stage === 0) return soil + seed;
+    if (stage === 1) return soil + stem(64) + leaf(50, 66, -1) + leaf(50, 66, 1);
+    if (stage === 2) return soil + stem(46) + leaf(50, 70, -1) + leaf(50, 70, 1) + leaf(50, 52, -1) + leaf(50, 52, 1);
+    const base = soil + stem(30) + leaf(50, 72, -1) + leaf(50, 72, 1) + leaf(50, 56, -1) + leaf(50, 56, 1);
+    if (stage === 3)
+      return base + '<ellipse cx="50" cy="26" rx="7" ry="9" fill="#8fbf5a" stroke="#3d6b2a" stroke-width="2"/>';
+    let petals = "";
+    for (let i = 0; i < 12; i++) {
+      petals += `<ellipse cx="50" cy="10" rx="5" ry="10" fill="#e8b730" stroke="#a5781a" stroke-width="1.5" transform="rotate(${i * 30} 50 24)"/>`;
+    }
+    return base + petals + '<circle cx="50" cy="24" r="8" fill="#6b4a2b" stroke="#4a321c" stroke-width="2"/>';
+  }
+
+  const plant = document.getElementById("plant");
+  const label = document.getElementById("stageLabel");
+  const gain = document.getElementById("stageGain");
+  const buttons = [...document.querySelectorAll("[data-stage]")];
+
+  function show(stage) {
+    plant.innerHTML = plantSvg(stage);
+    label.textContent = STAGES[stage].label;
+    gain.textContent = STAGES[stage].gain;
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.stage) === stage)));
+  }
+
+  buttons.forEach((b) => b.addEventListener("click", () => show(Number(b.dataset.stage))));
+
+  let timer = null;
+  document.getElementById("demo").addEventListener("click", () => {
+    clearInterval(timer);
+    let s = 0;
+    show(s);
+    timer = setInterval(() => {
+      s += 1;
+      show(s);
+      if (s >= STAGES.length - 1) clearInterval(timer);
+    }, 800);
+  });
+
+  show(0);
+</script>
+</body>
+</html>

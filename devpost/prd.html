@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Garden — Product Requirements</title>
+<!-- Companion view of prd.md. Markdown is canonical; this page only presents it. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --grass: #cfe6b0; --grass-deep: #9cc47a; --cream: #fbf3df; --cream-deep: #f1e3c0;
+    --bark: #6b4a2b; --bark-dark: #4a321c; --brick: #c2553a; --wheat: #e8b730;
+    --slate: #6f8796; --ink: #3b2a1a;
+    --border: 3px solid var(--bark); --shadow: 0 5px 0 var(--bark-dark); --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: "Nunito", "Segoe UI", system-ui, sans-serif; color: var(--ink); line-height: 1.55;
+    background: radial-gradient(circle at 20% 10%, #e3f1cd 0, transparent 40%),
+                radial-gradient(circle at 80% 70%, #d7ebbd 0, transparent 45%), var(--grass);
+  }
+  h1, h2, h3 { font-family: "Fredoka", "Segoe UI", system-ui, sans-serif; margin: 0 0 .4em; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 32px 20px 64px; }
+  .sign { text-align: center; margin: 12px 0 28px; }
+  .sign h1 { font-size: clamp(2rem, 5.5vw, 3.2rem); color: var(--cream); text-shadow: 0 4px 0 var(--bark-dark); }
+  .sign p { font-weight: 700; color: var(--bark-dark); margin: 0; font-size: 1.1rem; }
+  .badge { display: inline-block; margin-top: 12px; padding: 4px 14px; background: var(--cream-deep);
+    border: var(--border); border-radius: 999px; box-shadow: 0 3px 0 var(--bark-dark); font-weight: 700; font-size: .9rem; }
+  .panel { background: var(--cream); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 22px 24px; margin-bottom: 26px; }
+  .panel h2 { font-size: 1.5rem; color: var(--bark-dark); }
+  .note { font-size: .9rem; color: var(--slate); }
+  .btn { font: 700 1rem "Nunito", sans-serif; color: var(--cream); background: var(--brick); border: var(--border);
+    border-radius: 14px; box-shadow: 0 4px 0 var(--bark-dark); padding: 8px 16px; cursor: pointer; transition: transform .06s, box-shadow .06s; }
+  .btn:active { transform: translateY(4px); box-shadow: none; }
+  .btn.alt { background: var(--cream-deep); color: var(--ink); }
+  .btn:disabled { opacity: .45; cursor: default; }
+
+  /* Journey stepper */
+  .journey { display: grid; grid-template-columns: 1fr 1.1fr; gap: 22px; align-items: stretch; }
+  @media (max-width: 760px) { .journey { grid-template-columns: 1fr; } }
+  .stage { position: relative; background: var(--grass-deep); border: var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); min-height: 300px; overflow: hidden; }
+  .stage svg { width: 100%; height: 100%; display: block; }
+  .step-text h3 { font-size: 1.3rem; }
+  .dots { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+  .dot { width: 34px; height: 34px; border-radius: 50%; border: var(--border); background: var(--cream);
+    font: 700 .95rem "Fredoka", sans-serif; cursor: pointer; }
+  .dot[aria-current="step"] { background: var(--wheat); }
+  .controls { display: flex; gap: 10px; margin-top: 10px; }
+
+  /* Reveals */
+  details { background: var(--cream); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    margin-bottom: 18px; overflow: hidden; }
+  summary { cursor: pointer; list-style: none; padding: 14px 20px; font: 600 1.2rem "Fredoka", sans-serif;
+    display: flex; gap: 12px; align-items: center; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "▸"; margin-left: auto; transition: transform .15s; }
+  details[open] summary::after { transform: rotate(90deg); }
+  .body { padding: 0 22px 18px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .tab { font: 700 .9rem "Nunito", sans-serif; padding: 4px 12px; border-radius: 999px; border: 2px solid var(--bark);
+    background: var(--cream-deep); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--wheat); }
+  .tabpanel[hidden] { display: none; }
+  ul.check { list-style: none; padding-left: 0; }
+  ul.check li::before { content: "☐ "; color: var(--bark); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 2px dashed var(--cream-deep); vertical-align: top; }
+  th { font-family: "Fredoka", sans-serif; color: var(--bark); }
+  pre { background: #fff7e0; border: 2px solid var(--cream-deep); border-radius: 12px; padding: 12px; overflow-x: auto; font-size: .78rem; line-height: 1.3; }
+  .grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grid .panel { margin-bottom: 0; }
+  .tag { padding: 2px 12px; border-radius: 999px; border: 2px solid var(--bark); font-size: .85rem; }
+  .t-now { background: var(--wheat); } .t-def { background: #cdd9e0; } .t-non { background: #efc1b4; } .t-q { background: var(--cream-deep); }
+  .expand { background: #fff7e0; border-left: 6px solid var(--wheat); border-radius: 8px; padding: 10px 16px; margin: 0; }
+  footer { text-align: center; color: var(--bark-dark); font-weight: 700; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="sign">
+    <h1>Coin Garden</h1>
+    <p>Product requirements: what you see, what you do, what you get back</p>
+    <span class="badge">PRD · approved</span>
+  </header>
+
+  <section class="panel">
+    <h2>📈 From scope to product</h2>
+    <p class="expand">Scope said <em>"buy a coin, plant a seed, watch it grow."</em> Now we know exactly what that means: one garden screen, a notebook that is both log and guide, five stages, lessons above the flowers, a 10-second BTC Demo, and a "!" seed when prices can't be found.</p>
+  </section>
+
+  <section class="panel">
+    <h2>🧭 The Core Journey</h2>
+    <div class="journey">
+      <div class="stage" aria-live="polite"><svg id="scene" viewBox="0 0 400 300" role="img" aria-label="Journey illustration"></svg></div>
+      <div class="step-text">
+        <div class="dots" id="dots" role="tablist" aria-label="Journey steps"></div>
+        <h3 id="stepTitle"></h3>
+        <p id="stepBody"></p>
+        <div class="controls">
+          <button class="btn alt" id="prev">← Back</button>
+          <button class="btn" id="next">Next →</button>
+        </div>
+        <p class="note">Illustrations are rough sketches of each step, not final art.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>🖼️ Screens and Layout</h2>
+    <p>There is <strong>one screen, the garden</strong>. The notebook floats over it as a panel. The only controls are <strong>📖 Notebook</strong> (top-right) and <strong>▶ Demo</strong> (bottom centre).</p>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="desk">Desktop</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="mob">Mobile</button>
+    </div>
+    <div class="tabpanel" id="tab-desk"><pre>┌──────────────────────────────────────────────────────────────┐
+│ 🌻 Coin Garden                                [📖 Notebook]  │
+│                                                              │
+│            Welcome to your plot of land.                     │
+│       Every coin you buy is a seed. Patience grows it.       │
+│                 ╱‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾╲                           │
+│        🌳     ╱   empty soil rows  ╲        ~~ pond ~~       │
+│               ╲   waiting for seeds╱   ┌──────────────┐      │
+│                 ╲________________╱     │ Plant your   │      │
+│                                        │ first seed   │      │
+│                                        └──────┃───────┘      │
+│                    ┌────────────────┐                        │
+│                    │   ▶  Demo      │                        │
+│                    └────────────────┘                        │
+└──────────────────────────────────────────────────────────────┘</pre></div>
+    <div class="tabpanel" id="tab-mob" hidden><pre>┌─────────────────────┐
+│ 🌻 Coin Garden   📖 │
+│                     │
+│  Welcome to your    │
+│  plot of land.      │
+│    ╱‾‾‾‾‾‾‾‾‾╲      │
+│   ╱ · · · · · ╲     │
+│   ╲ · · · · · ╱     │
+│    ╲_________╱      │
+│                     │
+│ ┌─────────────────┐ │
+│ │     ▶ Demo      │ │
+│ └─────────────────┘ │
+└─────────────────────┘</pre></div>
+  </section>
+
+  <h2 style="color:var(--bark-dark); margin: 6px 4px 14px;">🌿 Features and Behavior</h2>
+
+  <details open>
+    <summary>🌱 The Garden</summary>
+    <div class="body">
+      <p>Each purchase is one plant; two buys of the same coin make two plants. The stage comes from gain over the buy price:</p>
+      <table>
+        <tr><th>Gain</th><th>Stage</th></tr>
+        <tr><td>Loss, or below +25%</td><td>🌰 Seed (never wilts)</td></tr>
+        <tr><td>+25%</td><td>🌱 Sprout, 2 leaves</td></tr>
+        <tr><td>+50%</td><td>🌿 Taller, 4 leaves</td></tr>
+        <tr><td>+75%</td><td>🌾 Bud</td></tr>
+        <tr><td>x2 or more</td><td>🌻 Golden sunflower</td></tr>
+      </table>
+      <h3 style="margin-top:14px">How we'll know it works</h3>
+      <ul class="check">
+        <li>An empty garden shows the welcome line, faint soil rows, the sign, Demo and 📖, with no numbers.</li>
+        <li>After saving a purchase, a seed appears without a reload.</li>
+        <li>A plant at each threshold shows the matching stage.</li>
+        <li>A plant below its buy price looks like a seed with no wilting.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>📖 The Notebook</summary>
+    <div class="body">
+      <p>Opens from 📖, or from the sign directly on the new-entry page. Pages:</p>
+      <ol>
+        <li><strong>How your garden grows:</strong> stages and the gain each one needs.</li>
+        <li><strong>What a seed can become:</strong> a sunflower in full bloom, captioned "Your seed can become this."</li>
+        <li><strong>New entry:</strong> coin, buy price, amount, date. Closing after a valid entry plants the seed.</li>
+        <li><strong>One page per plant:</strong> the recorded details, current gain once known, and a lesson field.</li>
+      </ol>
+      <h3>How we'll know it works</h3>
+      <ul class="check">
+        <li>📖 opens from anywhere; the sign opens the new-entry page.</li>
+        <li>An entry can't be saved without all four fields; price and amount must be above zero.</li>
+        <li>Tapping a plant opens its own page with exactly what was entered.</li>
+        <li>A written lesson is still there after reopening the app.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>📜 Lessons</summary>
+    <div class="body">
+      <p>One lesson per plant, written on its notebook page. Tapping a <strong>sunflower</strong> shows it in a bubble above the flower. If the flower has none, and for the Demo plant, a built-in lesson appears:</p>
+      <ul>
+        <li>"We don't have to be smarter than the rest. We have to be more disciplined than the rest." — Warren Buffett <span class="note">(attribution to verify)</span></li>
+        <li>"Plants need time to grow; fruit doesn't appear in a day."</li>
+      </ul>
+      <ul class="check">
+        <li>A sunflower with a written lesson shows that lesson above it.</li>
+        <li>A sunflower without one shows a built-in lesson.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>📈 Live Prices</summary>
+    <div class="body">
+      <p>When the app opens, the garden looks up each coin's current market price and plants update to match.</p>
+      <ul class="check"><li>With a known coin and a working connection, the plant's stage matches the current gain.</li></ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>▶ Demo</summary>
+    <div class="body">
+      <p>Pressing Demo plants a special <strong>BTC</strong> plant and simulates its price rising to x2 over about <strong>10 seconds</strong>. It ends as a sunflower, <strong>tinted and labelled "Demo"</strong>, showing a built-in lesson when tapped. Real plants are never touched.</p>
+      <ul class="check">
+        <li>The BTC plant goes seed → sprout → 4 leaves → bud → sunflower within about 10 seconds.</li>
+        <li>Afterward it is visibly marked "Demo" and real plants are unchanged.</li>
+      </ul>
+    </div>
+  </details>
+
+  <section class="panel">
+    <h2>🚦 States and Boundaries</h2>
+    <table>
+      <tr><th>State</th><th>What the investor sees</th></tr>
+      <tr><td>First use</td><td>Empty plot, welcome line, sign, Demo, 📖. No numbers.</td></tr>
+      <tr><td>Normal use</td><td>Plants at their stages; the sign disappears after the first seed.</td></tr>
+      <tr><td>Price not found / offline</td><td>Plant stays a seed with a <strong>"!"</strong>; its page explains the price couldn't be found. It updates once a price is available.</td></tr>
+      <tr><td>Invalid entry</td><td>The notebook names the missing or invalid field; no seed is planted.</td></tr>
+      <tr><td>Persistence</td><td>Purchases, lessons and the Demo plant remain on this device. Plants are never lost.</td></tr>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>🧑‍🌾 Product Decisions</h2>
+    <ul>
+      <li><strong>Your own empty plot first;</strong> the full-bloom image lives in the notebook as a promise.</li>
+      <li><strong>Only two controls:</strong> 📖 and Demo. No accounts, so no "save progress" split.</li>
+      <li><strong>The notebook is log and guide</strong> in one storybook object.</li>
+      <li><strong>Losses stay seeds.</strong> No wilting.</li>
+      <li><strong>Lessons per plant</strong> appear above the flower when tapped, with built-in fallback.</li>
+      <li><strong>Demo is its own 10-second BTC plant</strong> that stays as a tinted "Demo" sunflower.</li>
+      <li><strong>Missing price means a seed with "!"</strong>, an honest signal instead of a broken screen.</li>
+      <li><strong>Visual style only</strong> from the reference app.</li>
+      <li class="note">Assumption: pressing Demo again replays the single demo plant instead of adding more.</li>
+      <li class="note">Assumption: the name stays "Coin Garden" unless renamed.</li>
+    </ul>
+  </section>
+
+  <div class="grid">
+    <details open style="margin:0">
+      <summary><span class="tag t-def">Deferred</span></summary>
+      <div class="body"><ul>
+        <li><strong>Selling / marking plants sold:</strong> not needed to prove the growing garden.</li>
+        <li><strong>Editing or deleting entries:</strong> not discussed; add after the core loop works.</li>
+        <li><strong>Multiple devices:</strong> would need accounts or sync.</li>
+      </ul></div>
+    </details>
+    <details open style="margin:0">
+      <summary><span class="tag t-non">Non-Goals</span></summary>
+      <div class="body"><ul>
+        <li>Up/Down calls, leaderboards, tiers, equipment</li>
+        <li>Exchange or wallet syncing</li>
+        <li>Wilting or dying plants</li>
+        <li>Charts, portfolio totals, trading advice</li>
+      </ul></div>
+    </details>
+  </div>
+  <div style="height:22px"></div>
+
+  <details open>
+    <summary><span class="tag t-q">Open Questions</span></summary>
+    <div class="body"><ul>
+      <li><strong>Buffett quote source:</strong> verify before shipping. Doesn't block spec.</li>
+      <li><strong>How a coin is entered</strong> (free text, ticker, or picked from a list): shapes when "price not found" happens. The learner should confirm the experience.</li>
+    </ul></div>
+  </details>
+
+  <footer>Companion to <code>devpost/prd.md</code> — the Markdown file is the source of truth.</footer>
+</div>
+
+<script>
+  const STEPS = [
+    { t: "1 · Arrive", b: "You see your own empty plot in a living farm scene, with a welcome line painted above it and a wooden sign: \"Plant your first seed\". No numbers yet.", s: "empty" },
+    { t: "2 · Plant", b: "Tap the sign or 📖. The notebook opens on a new entry: coin, buy price, amount, date.", s: "book" },
+    { t: "3 · See the seed", b: "Close the notebook and a seed appears in the garden.", s: "seed" },
+    { t: "4 · Watch it grow", b: "The garden checks the current price. The plant shows the stage that matches your gain over the buy price.", s: "sprout" },
+    { t: "5 · Revisit", b: "Tap a plant to reopen its notebook page with everything you recorded, and write a lesson for it.", s: "page" },
+    { t: "6 · Bloom and reflect", b: "At x2 the plant becomes a golden sunflower. Tap it to see its lesson above the flower.", s: "bloom" },
+    { t: "7 · Demo", b: "Press Demo: a BTC demo plant grows from seed to sunflower in about 10 seconds, then stays tinted and labelled \"Demo\".", s: "demo" },
+    { t: "8 · Come back", b: "Next visit, the garden is still there and every plant has updated to today's price.", s: "garden" },
+  ];
+
+  const plot = '<polygon points="200,150 320,200 200,250 80,200" fill="#8a6239" stroke="#4a321c" stroke-width="3"/>' +
+    '<g stroke="#6b4a2b" stroke-width="2" stroke-dasharray="4 6" opacity=".6"><line x1="130" y1="200" x2="200" y2="170"/><line x1="160" y1="215" x2="250" y2="178"/><line x1="190" y1="230" x2="280" y2="193"/></g>';
+  const tree = (x) => `<circle cx="${x}" cy="120" r="22" fill="#6fae4a" stroke="#3d6b2a" stroke-width="3"/><rect x="${x - 4}" y="138" width="8" height="18" fill="#6b4a2b"/>`;
+  const pond = '<ellipse cx="345" cy="255" rx="40" ry="14" fill="#9cc4d6" stroke="#6f8796" stroke-width="3"/>';
+  const title = (txt) => `<text x="200" y="45" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="20" fill="#fbf3df" stroke="#4a321c" stroke-width="0.6" style="paint-order:stroke">${txt}</text>`;
+  const signPost = '<rect x="292" y="140" width="80" height="40" rx="8" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><text x="332" y="157" text-anchor="middle" font-size="10" font-family="Nunito" font-weight="700">Plant your</text><text x="332" y="171" text-anchor="middle" font-size="10" font-family="Nunito" font-weight="700">first seed</text><rect x="328" y="180" width="8" height="24" fill="#6b4a2b"/>';
+  const seedAt = (x, y) => `<ellipse cx="${x}" cy="${y}" rx="8" ry="5" fill="#a87a4a" stroke="#4a321c" stroke-width="2"/>`;
+  const sproutAt = (x, y) => `<path d="M${x},${y} L${x},${y - 26}" stroke="#3d6b2a" stroke-width="4"/><path d="M${x},${y - 20} q-14,-10 -24,-2 q10,10 24,2z" fill="#6fae4a" stroke="#3d6b2a" stroke-width="2"/><path d="M${x},${y - 20} q14,-10 24,-2 q-10,10 -24,2z" fill="#6fae4a" stroke="#3d6b2a" stroke-width="2"/>`;
+  function flowerAt(x, y, tint) {
+    let p = `<path d="M${x},${y} L${x},${y - 60}" stroke="#3d6b2a" stroke-width="5"/>`;
+    for (let i = 0; i < 12; i++) p += `<ellipse cx="${x}" cy="${y - 78}" rx="6" ry="12" fill="${tint || "#e8b730"}" stroke="#a5781a" stroke-width="1.5" transform="rotate(${i * 30} ${x} ${y - 66})"/>`;
+    return p + `<circle cx="${x}" cy="${y - 66}" r="10" fill="#6b4a2b"/>`;
+  }
+  const bubble = (txt) => `<rect x="70" y="58" width="260" height="34" rx="12" fill="#fff7e0" stroke="#6b4a2b" stroke-width="3"/><text x="200" y="80" text-anchor="middle" font-family="Nunito" font-size="12" font-style="italic">${txt}</text>`;
+  const book = '<rect x="90" y="70" width="220" height="160" rx="12" fill="#fbf3df" stroke="#6b4a2b" stroke-width="3"/><line x1="200" y1="70" x2="200" y2="230" stroke="#6b4a2b" stroke-width="3"/>';
+  const fields = (labels, x) => labels.map((l, i) => `<text x="${x}" y="${100 + i * 30}" font-family="Nunito" font-size="12" font-weight="700">${l}</text><line x1="${x}" y1="${108 + i * 30}" x2="${x + 90}" y2="${108 + i * 30}" stroke="#c9b48a" stroke-width="2"/>`).join("");
+
+  const SCENES = {
+    empty: () => tree(50) + pond + plot + signPost + title("Welcome to your plot of land"),
+    book: () => tree(50) + pond + plot + book + fields(["Coin", "Buy price"], 105) + fields(["Amount", "Date"], 215),
+    seed: () => tree(50) + pond + plot + seedAt(200, 205),
+    sprout: () => tree(50) + pond + plot + sproutAt(200, 205) + '<text x="200" y="285" text-anchor="middle" font-family="Fredoka" font-size="14" fill="#4a321c">+25% → sprout</text>',
+    page: () => tree(50) + pond + plot + sproutAt(200, 205) + book + fields(["BTC", "Bought at", "Amount"], 105) + '<text x="215" y="100" font-family="Nunito" font-size="12" font-weight="700">My lesson</text><rect x="215" y="108" width="85" height="80" rx="6" fill="#fff7e0" stroke="#c9b48a" stroke-width="2"/>',
+    bloom: () => tree(50) + pond + plot + flowerAt(200, 215) + bubble("Plants need time to grow."),
+    demo: () => tree(50) + pond + plot + flowerAt(200, 215, "#f3d27a") + '<rect x="225" y="190" width="50" height="22" rx="8" fill="#6f8796" stroke="#4a321c" stroke-width="2"/><text x="250" y="206" text-anchor="middle" font-family="Fredoka" font-size="12" fill="#fbf3df">Demo</text>' + '<text x="200" y="45" text-anchor="middle" font-family="Fredoka" font-size="16" fill="#4a321c">BTC · 10 seconds · seed → 🌻</text>',
+    garden: () => tree(50) + pond + plot + seedAt(140, 200) + sproutAt(200, 215) + flowerAt(255, 205) + '<g><circle cx="140" cy="182" r="9" fill="#c2553a"/><text x="140" y="187" text-anchor="middle" fill="#fbf3df" font-family="Fredoka" font-size="13">!</text></g>',
+  };
+
+  const scene = document.getElementById("scene");
+  const dots = document.getElementById("dots");
+  let cur = 0;
+  STEPS.forEach((_, i) => {
+    const d = document.createElement("button");
+    d.className = "dot"; d.textContent = i + 1; d.setAttribute("aria-label", "Step " + (i + 1));
+    d.addEventListener("click", () => go(i));
+    dots.appendChild(d);
+  });
+  function go(i) {
+    cur = Math.max(0, Math.min(STEPS.length - 1, i));
+    scene.innerHTML = SCENES[STEPS[cur].s]();
+    document.getElementById("stepTitle").textContent = STEPS[cur].t;
+    document.getElementById("stepBody").textContent = STEPS[cur].b;
+    [...dots.children].forEach((d, j) => j === cur ? d.setAttribute("aria-current", "step") : d.removeAttribute("aria-current"));
+    document.getElementById("prev").disabled = cur === 0;
+    document.getElementById("next").disabled = cur === STEPS.length - 1;
+  }
+  document.getElementById("prev").addEventListener("click", () => go(cur - 1));
+  document.getElementById("next").addEventListener("click", () => go(cur + 1));
+  go(0);
+
+  document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", String(x === t)));
+    document.getElementById("tab-desk").hidden = t.dataset.tab !== "desk";
+    document.getElementById("tab-mob").hidden = t.dataset.tab !== "mob";
+  }));
+</script>
+</body>
+</html>

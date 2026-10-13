@@ -1,0 +1,52 @@
+/*
+ * Coin Garden theme.
+ * Nothing outside this file invents a colour: components and SVGs use these variables.
+ */
+:root {
+  /* Earth palette */
+  --grass: #cfe6b0;
+  --grass-deep: #9cc47a;
+  --meadow: #e3f1cd;
+  --cream: #fbf3df;
+  --cream-deep: #f1e3c0;
+  --paper-line: #d9c69c;
+  --bark: #6b4a2b;
+  --bark-dark: #4a321c;
+  --ink: #3b2a1a;
+  --brick: #c2553a;
+  --brick-dark: #9c3f28;
+  --wheat: #e8b730;
+  --wheat-dark: #a5781a;
+  --slate: #6f8796;
+  --slate-light: #cdd9e0;
+
+  /* Garden */
+  --soil: #8a6239;
+  --soil-dark: #6e4b2a;
+  --soil-row: #a07448;
+  --seed: #a87a4a;
+  --leaf: #6fae4a;
+  --leaf-dark: #3d6b2a;
+  --bud: #8fbf5a;
+  --petal: var(--wheat);
+  --petal-edge: var(--wheat-dark);
+  --flower-heart: var(--bark);
+  --demo-petal: #f3d27a;
+  --demo-tint: var(--slate);
+  --tree: #5f9e45;
+  --pond: #9cc4d6;
+  --pond-edge: var(--slate);
+  --bird: var(--bark-dark);
+
+  /* Overlays */
+  --scrim: rgba(59, 42, 26, 0.35);
+
+  /* Shape tokens */
+  --border-width: 3px;
+  --border: var(--border-width) solid var(--bark);
+  --radius: 18px;
+  --radius-small: 12px;
+  --shadow: 0 5px 0 var(--bark-dark);
+  --shadow-small: 0 3px 0 var(--bark-dark);
+  --press: 4px;
+}
