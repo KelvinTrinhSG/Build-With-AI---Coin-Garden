@@ -27,7 +27,7 @@ Build mode: fast
   Learner check: Run `npm run dev`, open http://localhost:3000, tap 📖, type "eth", pick Ethereum, and fill in a price, amount and date. Close the book and see a seed in the plot. Try saving with an empty field and see the notebook point at it.
   Commit: `Scaffold Coin Garden and plant seeds from the notebook`
 
-- [ ] **2. Seeds grow with real prices**
+- [x] **2. Seeds grow with real prices**
   Becomes usable: Each plant shows its real growth stage (seed, sprout, 4 leaves, bud, sunflower) from the current CoinGecko price versus its buy price. A plant whose price can't be found stays a seed with a "!" badge.
   Why now: This is the kernel: patience grows the plant, and losses stay seeds. It must work early. It also proves the second CoinGecko call and the 60-second cache.
   PRD ref: `prd.md > The Garden`, `prd.md > Live Prices`, `prd.md > States and Boundaries` (price not found / no connection)

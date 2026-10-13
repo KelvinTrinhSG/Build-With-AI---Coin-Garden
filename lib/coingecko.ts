@@ -14,6 +14,25 @@ type SearchResponse = {
   coins?: { id: string; name: string; symbol: string; thumb?: string; market_cap_rank: number | null }[];
 };
 
+// Cached per id list for about a minute. Coins CoinGecko doesn't know are simply absent.
+export async function fetchPrices(ids: string[]): Promise<Record<string, number>> {
+  "use cache";
+  cacheLife("minutes");
+
+  const res = await fetch(`${BASE}/simple/price?ids=${encodeURIComponent(ids.join(","))}&vs_currencies=usd`, {
+    headers: headers(),
+  });
+  if (!res.ok) throw new Error(`CoinGecko price lookup failed: ${res.status}`);
+  const data = (await res.json()) as Record<string, { usd?: number }>;
+
+  const prices: Record<string, number> = {};
+  for (const id of ids) {
+    const usd = data[id]?.usd;
+    if (typeof usd === "number") prices[id] = usd;
+  }
+  return prices;
+}
+
 // Cached per query for about a minute and shared by every visitor.
 // Throwing on failure keeps errors out of the cache.
 export async function searchCoins(query: string): Promise<CoinMatch[]> {

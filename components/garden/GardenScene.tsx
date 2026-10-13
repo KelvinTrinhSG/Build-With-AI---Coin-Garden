@@ -1,4 +1,4 @@
-import type { Plant as PlantData } from "@/lib/types";
+import type { Plant as PlantData, Stage } from "@/lib/types";
 import Plant from "./Plant";
 import styles from "./garden.module.css";
 
@@ -20,9 +20,13 @@ export function slotPosition(index: number) {
   };
 }
 
-type Props = { plants: PlantData[] };
+type Props = {
+  plants: PlantData[];
+  stageOf: (plant: PlantData) => Stage;
+  priceMissing: (plant: PlantData) => boolean;
+};
 
-export default function GardenScene({ plants }: Props) {
+export default function GardenScene({ plants, stageOf, priceMissing }: Props) {
   const rows = Math.max(MIN_ROWS, Math.ceil(plants.length / COLS));
   const halfW = TILE_W / 2;
   const halfH = TILE_H / 2;
@@ -39,6 +43,11 @@ export default function GardenScene({ plants }: Props) {
   const height = bottom.y + SOIL_DEPTH + PAD + HEADROOM;
 
   const slots = Array.from({ length: rows * COLS }, (_, i) => slotPosition(i));
+
+  // Draw back-to-front so nearer plants overlap farther ones.
+  const placed = plants
+    .map((plant, i) => ({ plant, ...slotPosition(i) }))
+    .sort((a, b) => a.y - b.y);
 
   return (
     <svg
@@ -67,10 +76,9 @@ export default function GardenScene({ plants }: Props) {
         <ellipse key={i} cx={s.x} cy={s.y} rx={16} ry={7} fill="var(--soil-row)" opacity={0.55} />
       ))}
 
-      {plants.map((plant, i) => {
-        const { x, y } = slotPosition(i);
-        return <Plant key={plant.id} plant={plant} x={x} y={y} />;
-      })}
+      {placed.map(({ plant, x, y }) => (
+        <Plant key={plant.id} plant={plant} x={x} y={y} stage={stageOf(plant)} missingPrice={priceMissing(plant)} />
+      ))}
     </svg>
   );
 }

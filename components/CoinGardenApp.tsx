@@ -1,32 +1,27 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import TopBar from "./TopBar";
 import GardenScene from "./garden/GardenScene";
 import Notebook from "./notebook/Notebook";
-import type { NewPlant, Plant } from "@/lib/types";
+import { useGarden } from "@/hooks/useGarden";
 import styles from "./CoinGardenApp.module.css";
 
 export default function CoinGardenApp() {
-  const [plants, setPlants] = useState<Plant[]>([]);
+  const garden = useGarden();
   const [notebookOpen, setNotebookOpen] = useState(false);
-
-  const addPlant = useCallback((entry: NewPlant) => {
-    const plant: Plant = { ...entry, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setPlants((prev) => [...prev, plant]);
-  }, []);
 
   return (
     <div className={styles.app}>
       <TopBar onOpenNotebook={() => setNotebookOpen(true)} />
       <main className={styles.stage}>
-        <GardenScene plants={plants} />
+        <GardenScene plants={garden.plants} stageOf={garden.stageOf} priceMissing={garden.priceMissing} />
       </main>
       {notebookOpen && (
         <Notebook
           onClose={() => setNotebookOpen(false)}
           onPlant={(entry) => {
-            addPlant(entry);
+            garden.addPlant(entry);
             setNotebookOpen(false);
           }}
         />
