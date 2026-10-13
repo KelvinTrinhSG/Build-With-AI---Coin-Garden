@@ -41,12 +41,24 @@ export default function CoinGardenApp() {
   };
 
   const pagePlant = notebookPage?.kind === "plant" ? garden.plants.find((p) => p.id === notebookPage.id) : undefined;
+  // Until the saved garden has loaded, show the neutral plot only (no sign flash for returning visitors).
+  const isEmpty = garden.loaded && garden.plants.length === 0;
 
   return (
     <div className={styles.app}>
       <TopBar onOpenNotebook={() => setNotebookPage({ kind: "guide" })} />
       <main className={styles.stage}>
+        <div className={styles.welcome} aria-hidden={!isEmpty}>
+          {isEmpty && (
+            <>
+              <h1 className={`on-world ${styles.welcomeTitle}`}>Welcome to your plot of land.</h1>
+              <p className={`on-world ${styles.welcomeLine}`}>Every coin you buy is a seed. Patience grows it.</p>
+            </>
+          )}
+        </div>
         <GardenScene
+          showSign={isEmpty}
+          onPlantFirstSeed={() => setNotebookPage({ kind: "new" })}
           plants={garden.plants}
           stageOf={stageOf}
           priceMissing={priceMissing}

@@ -2,6 +2,8 @@ import type { Lesson } from "@/lib/lessons";
 import type { Plant as PlantData, Stage } from "@/lib/types";
 import Plant from "./Plant";
 import LessonBubble from "./LessonBubble";
+import WelcomeSign from "./WelcomeSign";
+import { Bird, SceneryBack, SceneryFront } from "./Scenery";
 import styles from "./garden.module.css";
 
 // Isometric plot geometry. Slots fill row by row; the plot grows a row at a time.
@@ -12,6 +14,8 @@ const TILE_H = 48;
 const SOIL_DEPTH = 18;
 const HEADROOM = 130; // space above the plot for tall sunflowers
 const PAD = 24;
+const SCENERY_X = 110; // room either side for trees and the pond
+const SCENERY_Y = 50;
 
 export function slotPosition(index: number) {
   const col = index % COLS;
@@ -31,6 +35,8 @@ type Props = {
   onSelectPlant: (plant: PlantData) => void;
   onOpenPage: (plant: PlantData) => void;
   onBackgroundClick: () => void;
+  showSign: boolean;
+  onPlantFirstSeed: () => void;
 };
 
 export default function GardenScene(props: Props) {
@@ -45,10 +51,11 @@ export default function GardenScene(props: Props) {
   const left = { x: -rows * halfW, y: rows * halfH };
   const pts = (...p: { x: number; y: number }[]) => p.map(({ x, y }) => `${x},${y}`).join(" ");
 
-  const minX = left.x - PAD;
-  const width = right.x - left.x + PAD * 2;
+  const minX = left.x - PAD - SCENERY_X;
+  const width = right.x - left.x + (PAD + SCENERY_X) * 2;
   const minY = -HEADROOM;
-  const height = bottom.y + SOIL_DEPTH + PAD + HEADROOM;
+  const height = bottom.y + SOIL_DEPTH + PAD + HEADROOM + SCENERY_Y;
+  const bounds = { left: left.x, right: right.x, top: top.y, bottom: bottom.y };
 
   const slots = Array.from({ length: rows * COLS }, (_, i) => slotPosition(i));
 
@@ -64,6 +71,9 @@ export default function GardenScene(props: Props) {
       aria-label={plants.length ? `Your garden with ${plants.length} plants` : "Your empty garden plot"}
       onClick={props.onBackgroundClick}
     >
+      <SceneryBack {...bounds} />
+      <Bird {...bounds} top={minY + 30} left={minX} right={minX + width} />
+
       {/* Soil sides give the plot some depth */}
       <polygon
         points={pts(left, bottom, { x: bottom.x, y: bottom.y + SOIL_DEPTH }, { x: left.x, y: left.y + SOIL_DEPTH })}
@@ -95,6 +105,10 @@ export default function GardenScene(props: Props) {
           onSelect={() => props.onSelectPlant(plant)}
         />
       ))}
+
+      <SceneryFront {...bounds} />
+
+      {props.showSign && <WelcomeSign x={right.x + 20} y={right.y + 40} onClick={props.onPlantFirstSeed} />}
 
       {selected && (
         <LessonBubble

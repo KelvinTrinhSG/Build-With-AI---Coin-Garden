@@ -10,6 +10,35 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 20px 32px;
-  gap: 20px;
+  padding: 0 20px 32px;
+  gap: 16px;
+}
+
+/* Reserves its space even when empty so the garden doesn't jump. */
+.welcome {
+  min-height: 5.5rem;
+  text-align: center;
+}
+
+.welcomeTitle {
+  font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+  margin: 0;
+}
+
+.welcomeLine {
+  margin: 4px 0 0;
+  font-size: clamp(1rem, 2.4vw, 1.3rem);
+  font-weight: 700;
+  text-shadow: 0 2px 0 var(--bark-dark);
+}
+
+@media (max-width: 640px) {
+  .stage {
+    justify-content: flex-start;
+    padding: 0 14px 20px;
+  }
+
+  .welcome {
+    min-height: 6.5rem;
+  }
 }

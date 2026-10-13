@@ -92,7 +92,7 @@ Build mode: fast
   Learner check: Tap a plant and see exactly what you entered. Write a lesson, reload, tap the sunflower, and see your lesson above it. Tap the Demo flower and see a built-in lesson.
   Commit: `Add plant pages, lessons and notebook guide`
 
-- [ ] **6. The picture-book farm**
+- [x] **6. The picture-book farm**
   Becomes usable: The full look from `prd.md > Look and Feel`:
   - The isometric SVG farm world with trees and a pond.
   - Faint soil rows, the on-world welcome text, and the "Plant your first seed" sign when the garden is empty, with no numbers.
@@ -145,4 +145,6 @@ Activity mode:
 - **A demo plant interrupted by a reload now loads as a finished sunflower.** Previously it would have been stuck as a seed, because the simulated price isn't stored.
 - **Tapping a sunflower now shows its lesson bubble, which has a "📖 page" link; tapping any other plant opens its notebook page directly.** The PRD has both "tap a plant → its page" and "tap a sunflower → lesson above it", so one tap can't do both on a sunflower. The learner should confirm this in the final review.
 - **The 📖 button opens on the "How it grows" guide page; the "Plant your first seed" sign (slice 6) opens the new-entry page.** The notebook got tab navigation between its pages.
+- **Slice 6's visual checks at 375px and 1280px moved to the learner's final review, and only the server-rendered neutral state was verified mechanically.** The agent has no browser. The server HTML has the plot but no sign or welcome text; those appear only after the saved garden loads.
+- **The scenery lives in `components/garden/Scenery.tsx`.** It holds the trees, pond, swaying grass and the bird; this file wasn't in the spec's tree. It's purely decorative.
 

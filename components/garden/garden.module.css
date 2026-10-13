@@ -1,8 +1,100 @@
 .scene {
-  width: min(100%, 760px);
+  width: min(100%, 860px);
   height: auto;
   max-height: 62vh;
   overflow: visible;
+}
+
+@media (max-width: 640px) {
+  .scene {
+    max-height: none;
+  }
+}
+
+.sign {
+  cursor: pointer;
+  outline: none;
+}
+
+.sign:active .signBoard {
+  transform: translateY(4px);
+}
+
+.sign:focus-visible {
+  filter: drop-shadow(0 0 4px var(--wheat));
+}
+
+.signText {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  fill: var(--bark-dark);
+}
+
+/* Ambient life: the world keeps moving even when the garden is empty. */
+.sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sway 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes sway {
+  from {
+    transform: rotate(-6deg);
+  }
+  to {
+    transform: rotate(6deg);
+  }
+}
+
+.ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ripple 3.2s ease-out infinite;
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+.bird {
+  animation: fly 26s linear infinite;
+  animation-delay: 3s;
+  opacity: 0;
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(calc(var(--fly) * 0.33), -12px);
+  }
+  45% {
+    transform: translate(calc(var(--fly) * 0.5), 6px);
+    opacity: 1;
+  }
+  46%,
+  100% {
+    transform: translate(var(--fly), -10px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sway,
+  .ripple,
+  .bird {
+    animation: none;
+  }
 }
 
 .plant {
