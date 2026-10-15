@@ -51,3 +51,9 @@ next-env.d.ts
 # allow the secret-free example env file
 !.env.example
 
+
+# Devpost course skills for AI agents (installed locally, not part of the app)
+/.agents/
+/.claude/
+/agent/
+/skills-lock.json
