@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import GuidePage from "./GuidePage";
 import PreviewPage from "./PreviewPage";
-import NewEntryPage from "./NewEntryPage";
+import SeedTable from "./SeedTable";
 import PlantPage from "./PlantPage";
 import type { NewPlant, Plant, Stage } from "@/lib/types";
 import styles from "./notebook.module.css";
@@ -19,13 +19,19 @@ type Props = {
   plantStage?: Stage;
   plantPrice?: number;
   plantPriceMissing?: boolean;
-  onLessonChange: (id: string, lesson: string) => void;
+  onHarvest: (id: string) => void;
+  // The seed table edits every real plant in place.
+  plants: Plant[];
+  stageOf: (plant: Plant) => Stage;
+  priceMissing: (plant: Plant) => boolean;
+  onUpdate: (id: string, patch: Partial<NewPlant>) => void;
+  onRemove: (id: string) => void;
 };
 
 const TABS: { kind: "guide" | "preview" | "new"; label: string }[] = [
   { kind: "guide", label: "How it grows" },
   { kind: "preview", label: "What it becomes" },
-  { kind: "new", label: "New seed" },
+  { kind: "new", label: "Seed table" },
 ];
 
 export default function Notebook(props: Props) {
@@ -40,7 +46,7 @@ export default function Notebook(props: Props) {
   return (
     <div className={styles.scrim} onClick={onClose}>
       <section
-        className={styles.book}
+        className={`${styles.book} ${page.kind === "new" ? styles.bookWide : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="Notebook"
@@ -71,7 +77,17 @@ export default function Notebook(props: Props) {
 
         {page.kind === "guide" && <GuidePage />}
         {page.kind === "preview" && <PreviewPage />}
-        {page.kind === "new" && <NewEntryPage onPlant={props.onPlant} />}
+        {page.kind === "new" && (
+          <SeedTable
+            plants={props.plants}
+            stageOf={props.stageOf}
+            priceMissing={props.priceMissing}
+            onPlant={props.onPlant}
+            onUpdate={props.onUpdate}
+            onRemove={props.onRemove}
+            onOpenPlant={(p) => onNavigate({ kind: "plant", id: p.id })}
+          />
+        )}
         {page.kind === "plant" && props.plant && (
           <PlantPage
             key={props.plant.id}
@@ -79,7 +95,7 @@ export default function Notebook(props: Props) {
             stage={props.plantStage ?? 0}
             currentPrice={props.plantPrice}
             priceMissing={!!props.plantPriceMissing}
-            onLessonChange={(lesson) => props.onLessonChange(props.plant!.id, lesson)}
+            onHarvest={() => props.onHarvest(props.plant!.id)}
           />
         )}
       </section>

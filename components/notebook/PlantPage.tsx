@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { STAGES, gainPercent } from "@/lib/growth";
+import { lessonFor } from "@/lib/lessons";
 import type { Plant, Stage } from "@/lib/types";
 import PlantIcon from "./PlantIcon";
 import styles from "./notebook.module.css";
@@ -11,16 +11,30 @@ type Props = {
   stage: Stage;
   currentPrice?: number;
   priceMissing: boolean;
-  onLessonChange: (lesson: string) => void;
+  onHarvest: () => void;
 };
 
 const usd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n < 1 ? 6 : 2 });
 
-export default function PlantPage({ plant, stage, currentPrice, priceMissing, onLessonChange }: Props) {
-  const [lesson, setLesson] = useState(plant.lesson ?? "");
+export default function PlantPage({ plant, stage, currentPrice, priceMissing, onHarvest }: Props) {
+  // Lessons arrive with the harvest; a plant that is still growing has none yet.
+  const lesson = lessonFor(plant);
+  const canHarvest = !plant.isDemo && !plant.harvestedAt && stage === 4 && currentPrice !== undefined;
 
   let growth: React.ReactNode;
-  if (plant.isDemo) {
+  if (plant.harvestedAt) {
+    const date = plant.harvestedAt.slice(0, 10);
+    if (plant.harvestPrice !== undefined) {
+      const gain = gainPercent(plant.buyPrice, plant.harvestPrice);
+      growth = (
+        <>
+          🌻 Harvested {date} at {usd(plant.harvestPrice)} · <strong>+{gain.toFixed(1)}%</strong>
+        </>
+      );
+    } else {
+      growth = <>🌻 Harvested {date}</>;
+    }
+  } else if (plant.isDemo) {
     growth = plant.demoSamplePrice
       ? "A demo plant, simulated from a sample BTC price because the live price couldn't be reached."
       : "A demo plant: its rise to x2 was simulated, not real.";
@@ -63,21 +77,26 @@ export default function PlantPage({ plant, stage, currentPrice, priceMissing, on
         <dd>{plant.date}</dd>
       </dl>
 
-      {plant.isDemo ? (
-        <p className={styles.hint}>The demo flower always carries one of the garden&apos;s built-in lessons.</p>
-      ) : (
-        <label className={styles.field}>
-          <span className={styles.label}>My lesson</span>
-          <textarea
-            className={styles.input}
-            rows={3}
-            placeholder="What did this coin teach you?"
-            value={lesson}
-            onChange={(e) => setLesson(e.target.value)}
-            onBlur={() => onLessonChange(lesson)}
-          />
-          <span className={styles.hint}>Shown above this plant&apos;s sunflower when you tap it.</span>
-        </label>
+      {canHarvest && (
+        <div className={styles.harvest}>
+          <button type="button" className="chunky primary" onClick={onHarvest}>
+            🌻 Harvest
+          </button>
+          <span className={styles.hint}>It reached x2. Harvest it to move it to the harvest plot and receive its lesson.</span>
+        </div>
+      )}
+
+      {lesson && (
+        <figure className={styles.lessonCard}>
+          <figcaption className={styles.label}>{plant.isDemo ? "Demo lesson" : "Lesson from the harvest"}</figcaption>
+          <blockquote className={styles.lessonText}>“{lesson.text}”</blockquote>
+          {lesson.author && (
+            <p className={styles.lessonAuthor}>
+              — {lesson.author}
+              {lesson.source && <span className={styles.lessonSource}>, {lesson.source}</span>}
+            </p>
+          )}
+        </figure>
       )}
     </div>
   );

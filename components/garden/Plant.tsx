@@ -125,14 +125,6 @@ export default function Plant({ plant, stage, x, y, missingPrice, onSelect }: Pr
       </title>
       <ellipse cx={0} cy={0} rx={14} ry={6} fill="var(--soil-dark)" opacity={0.5} />
       <Growth stage={stage} petal={petal} />
-      {plant.isDemo && (
-        <g transform="translate(0 16)">
-          <rect x={-24} y={-9} width={48} height={18} rx={8} fill="var(--demo-tint)" stroke="var(--bark-dark)" strokeWidth={2} />
-          <text y={4.5} textAnchor="middle" fontSize={12} fontWeight={700} fill="var(--cream)">
-            Demo
-          </text>
-        </g>
-      )}
       {missingPrice && (
         <g transform="translate(14 -16)" aria-label="Price couldn't be found">
           <circle r={9} fill="var(--brick)" stroke="var(--bark-dark)" strokeWidth={2} />

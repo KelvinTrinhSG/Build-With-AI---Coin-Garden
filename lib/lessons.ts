@@ -1,15 +1,11 @@
+import { QUOTES, type Quote } from "./quotes";
 import type { Plant } from "./types";
 
-export type Lesson = { text: string; source?: string };
+export type Lesson = { text: string; author?: string; source?: string };
 
-export const BUILT_IN_LESSONS: Lesson[] = [
-  {
-    text: "We don't have to be smarter than the rest. We have to be more disciplined than the rest.",
-    // Widely attributed; verify the original source before shipping.
-    source: "Warren Buffett",
-  },
-  { text: "Plants need time to grow; fruit doesn't appear in a day." },
-];
+const BY_ID = new Map(QUOTES.map((q) => [q.id, q]));
+
+const fromQuote = (q: Quote): Lesson => ({ text: q.text, author: q.author, source: q.source });
 
 function hash(s: string): number {
   let h = 0;
@@ -17,8 +13,27 @@ function hash(s: string): number {
   return Math.abs(h);
 }
 
-/** The plant's own lesson if it has one (never for the demo plant), otherwise a built-in one that stays the same for that plant. */
-export function lessonFor(plant: Plant): Lesson {
+/**
+ * A random quote id for a new harvest. Quotes no other flower holds yet are preferred,
+ * so the harvest plot fills with different lessons until all 100 have been used.
+ */
+export function pickQuoteId(usedIds: Iterable<string>, random: () => number = Math.random): string {
+  const used = new Set(usedIds);
+  const fresh = QUOTES.filter((q) => !used.has(q.id));
+  const pool = fresh.length > 0 ? fresh : QUOTES;
+  return pool[Math.floor(random() * pool.length) % pool.length].id;
+}
+
+/**
+ * The lesson a flower carries, or null while it is still growing: lessons arrive with the harvest.
+ * A harvested flower shows the quote it received; one harvested before quotes existed keeps its own
+ * written lesson, or else gets a quote chosen steadily from its id. The demo flower shows a quote
+ * too, since it plays out the whole journey.
+ */
+export function lessonFor(plant: Plant): Lesson | null {
+  if (!plant.harvestedAt && !plant.isDemo) return null;
+  const quote = plant.quoteId ? BY_ID.get(plant.quoteId) : undefined;
+  if (quote) return fromQuote(quote);
   if (!plant.isDemo && plant.lesson?.trim()) return { text: plant.lesson.trim() };
-  return BUILT_IN_LESSONS[hash(plant.id) % BUILT_IN_LESSONS.length];
+  return fromQuote(QUOTES[hash(plant.id) % QUOTES.length]);
 }

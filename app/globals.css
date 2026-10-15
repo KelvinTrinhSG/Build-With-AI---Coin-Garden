@@ -63,12 +63,6 @@ textarea {
   color: var(--cream);
 }
 
-/* Title painted straight onto the scene. */
-.on-world {
-  font-family: var(--font-heading), "Segoe UI", sans-serif;
-  color: var(--cream);
-  text-shadow: 0 4px 0 var(--bark-dark);
-}
 
 .visually-hidden {
   position: absolute;

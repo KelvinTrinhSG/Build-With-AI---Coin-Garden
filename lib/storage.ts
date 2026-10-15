@@ -14,7 +14,9 @@ function isPlant(value: unknown): value is Plant {
     p.buyPrice > 0 &&
     typeof p.amount === "number" &&
     typeof p.date === "string" &&
-    typeof p.createdAt === "string"
+    typeof p.createdAt === "string" &&
+    (p.harvestedAt === undefined || typeof p.harvestedAt === "string") &&
+    (p.quoteId === undefined || typeof p.quoteId === "string")
   );
 }
 

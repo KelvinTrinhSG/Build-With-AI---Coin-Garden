@@ -9,11 +9,14 @@ export type Plant = {
   buyPrice: number; // USD per coin, > 0
   amount: number; // > 0
   date: string; // "YYYY-MM-DD"
-  lesson?: string;
+  lesson?: string; // only on plants saved before lessons came from the quote register; still shown if harvested
+  quoteId?: string; // the register quote this flower received when it was harvested
   isDemo?: boolean;
   demoComplete?: boolean;
   demoSamplePrice?: boolean; // demo buy price is a labelled sample because BTC price was unavailable
   createdAt: string; // ISO timestamp; also decides plot order
+  harvestedAt?: string; // ISO timestamp; set once a sunflower is harvested, which moves it to the harvest plot
+  harvestPrice?: number; // USD per coin on the day it was harvested
 };
 
 export type GardenSave = { version: 1; plants: Plant[] };

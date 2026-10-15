@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchPrices } from "@/lib/priceClient";
 import { stageFor } from "@/lib/growth";
+import { pickQuoteId } from "@/lib/lessons";
 import { loadGarden, saveGarden } from "@/lib/storage";
 import type { NewPlant, Plant, Stage } from "@/lib/types";
 
@@ -29,9 +30,10 @@ export function useGarden() {
     if (loaded) saveGarden(plants);
   }, [plants, loaded]);
 
-  // Unique real coins in the garden, as a stable string so the effect only reruns when it changes.
+  // Unique coins still growing, as a stable string so the effect only reruns when it changes.
+  // Harvested flowers are frozen, so they don't need today's price.
   const coinKey = useMemo(
-    () => [...new Set(plants.filter((p) => !p.isDemo).map((p) => p.coinId))].sort().join(","),
+    () => [...new Set(plants.filter((p) => !p.isDemo && !p.harvestedAt).map((p) => p.coinId))].sort().join(","),
     [plants],
   );
 
@@ -57,20 +59,61 @@ export function useGarden() {
     setPlants((prev) => [...prev, plant]);
   }, []);
 
-  const updateLesson = useCallback((id: string, lesson: string) => {
-    setPlants((prev) => prev.map((p) => (p.id === id ? { ...p, lesson: lesson.trim() || undefined } : p)));
+  // Edits from the seed table: any of the recorded purchase fields, applied straight to the garden.
+  const updatePlant = useCallback((id: string, patch: Partial<NewPlant>) => {
+    setPlants((prev) => prev.map((p) => (p.id === id && !p.isDemo ? { ...p, ...patch } : p)));
   }, []);
+
+  const removePlant = useCallback((id: string) => {
+    setPlants((prev) => prev.filter((p) => p.id !== id || p.isDemo));
+  }, []);
+
+  // Only a sunflower (x2 or more at today's price) can be harvested. The price that day is kept with it,
+  // and the flower receives its lesson: a random quote from the register that no other flower holds yet.
+  const harvest = useCallback(
+    (id: string) => {
+      setPlants((prev) => {
+        const target = prev.find((p) => p.id === id);
+        if (!target || target.isDemo || target.harvestedAt) return prev;
+        const price = prices[target.coinId];
+        if (stageFor(target.buyPrice, price) !== 4) return prev;
+        const quoteId = pickQuoteId(prev.flatMap((p) => (p.quoteId ? [p.quoteId] : [])));
+        return prev.map((p) =>
+          p.id === id ? { ...p, harvestedAt: new Date().toISOString(), harvestPrice: price, quoteId } : p,
+        );
+      });
+    },
+    [prices],
+  );
 
   const priceOf = useCallback((plant: Plant): number | undefined => prices[plant.coinId], [prices]);
 
-  const stageOf = useCallback((plant: Plant): Stage => stageFor(plant.buyPrice, prices[plant.coinId]), [prices]);
+  const stageOf = useCallback(
+    (plant: Plant): Stage => (plant.harvestedAt ? 4 : stageFor(plant.buyPrice, prices[plant.coinId])),
+    [prices],
+  );
 
   // Only flag a missing price once a lookup has finished; while loading the plant just waits.
   const priceMissing = useCallback(
     (plant: Plant) =>
-      (priceStatus === "ok" || priceStatus === "error") && prices[plant.coinId] === undefined,
+      !plant.harvestedAt &&
+      (priceStatus === "ok" || priceStatus === "error") &&
+      prices[plant.coinId] === undefined,
     [priceStatus, prices],
   );
 
-  return { plants, setPlants, loaded, prices, priceStatus, addPlant, updateLesson, priceOf, stageOf, priceMissing };
+  return {
+    plants,
+    setPlants,
+    loaded,
+    prices,
+    priceStatus,
+    addPlant,
+    updatePlant,
+    removePlant,
+    harvest,
+    priceOf,
+    stageOf,
+    priceMissing,
+  };
 }

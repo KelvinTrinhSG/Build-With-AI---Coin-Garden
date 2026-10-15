@@ -114,6 +114,49 @@ Build mode: fast
   Learner check: Open a private window and see your own empty plot, the welcome line, the sign, Demo and 📖, with nothing else. Resize to phone width. Then plant a seed and press Demo, and judge whether it feels like a storybook farm.
   Commit: `Picture-book farm scene and responsive layout`
 
+- [x] **7. Three plots, harvest and a fuller farm** *(added after shipping, from the learner's feedback)*
+  Becomes usable: The farm fills the window and is split into quarters: a small Demo plot (left 1/4), the Growing plot (middle 2/4) and the Harvest plot (right 1/4). Each zone has a caption saying what it is and what to do. A sunflower can be harvested from its notebook page and moves to the Harvest plot. The Demo plot's sign is the ▶ Demo button. The scene gains a barn, silo, tractor, hay, tools and a fence, and the title and name are soil-brown for readability.
+  Why now: The learner asked for separate places for trying, growing and keeping, a cozier farm, and a layout that uses the whole page.
+  PRD ref: `prd.md > The Core Journey` (steps 1, 7, 8), `prd.md > Screens and Layout`, `prd.md > The Garden`, `prd.md > Harvest`, `prd.md > Demo`
+  Spec ref: `spec.md > GardenScene — components/garden/GardenScene.tsx`, `spec.md > Plot Layout — components/garden/layout.ts`, `spec.md > Scenery — components/garden/Scenery.tsx`, `spec.md > Garden Split — lib/garden.ts`, `spec.md > useGarden — hooks/useGarden.ts`, `spec.md > Data Model`
+  Build:
+  - Add `harvestedAt` / `harvestPrice` to `Plant`, `splitGarden`, and `useGarden.harvest`; add the Harvest button to `PlantPage`.
+  - Add `layout.ts` (quarters on desktop, stacked on phones), the fitted `viewBox`, the farm props, `ZoneCaption` and the clickable `PlotSign`.
+  - Remove `DemoButton` and the plant's "Demo" badge; move the title into the SVG; float the top bar over the sky.
+  Verify (mechanical):
+  - `npm test` passes (28 tests, including `splitGarden`); `tsc --noEmit` and `eslint` are clean.
+  - Headless Chrome driven over the DevTools protocol with a seeded garden: pressing ▶ Demo switches the sign to "🌱 Growing…"; pressing Harvest on a $1,000 BTC sunflower saves `harvestedAt` and the day's price, and the flower appears in the Harvest plot.
+  - Screenshots at 1913×866, 1904×843, 1366×768, 1280×900 and 560px wide, plus a simulated 25% zoom, checked for overlaps.
+  Learner check: Reload at 100% zoom; try ▶ Demo; plant a coin bought far below today's price, open its page, press Harvest and see it move right; resize to phone width.
+
+- [x] **8. An editable seed table** *(added after shipping, from the learner's feedback)*
+  Becomes usable: The notebook's "New seed" form became the **Seed table**, a spreadsheet of every real plant. Cells can be edited again at any time and each valid change re-draws the garden at once; the last row adds a new seed without closing the book; ✕ removes a row after a confirmation card in the app's own style.
+  Why now: The learner wanted to enter purchases like in Excel, fix them later, and see the garden respond to each change. The browser's default confirm box didn't match the storybook look.
+  PRD ref: `prd.md > The Core Journey` (steps 2–4), `prd.md > The Notebook`, `prd.md > States and Boundaries` (invalid entry)
+  Spec ref: `spec.md > SeedTable — components/notebook/SeedTable.tsx`, `spec.md > ConfirmDialog — components/ConfirmDialog.tsx`, `spec.md > Entry Rules — lib/entry.ts`, `spec.md > useGarden — hooks/useGarden.ts`
+  Build:
+  - Add `updatePlant` and `removePlant` to `useGarden`, and `lib/entry.ts` (`parsePositive`, `today`) with tests.
+  - Add `SeedTable` (editable cells, coin change, new row, Plant column, remove) and replace `NewEntryPage`; widen the book on that page.
+  - Add the reusable `ConfirmDialog` and use it for removing a row.
+  Verify (mechanical):
+  - `npm test` passes (30 tests, including `parsePositive`); `tsc --noEmit` and `eslint` are clean.
+  - Headless Chrome over the DevTools protocol with a seeded garden: editing BTC's buy price from 1,000 to 100,000 is saved at once and the sunflower turns back into a seed; an amount of 0 is not saved; a new ETH row added through the coin search is planted; Escape on the confirm card closes only the card; **Remove** deletes the row.
+  Learner check: Open 📖 → Seed table; change a buy price and watch the plant behind the book change; add two seeds in a row; remove one and try "Keep it" first.
+
+- [x] **9. Lessons from great investors, given at harvest** *(added after shipping, from the learner's feedback)*
+  Becomes usable: Lessons are no longer typed. A register of 100 sourced quotes on long-term investing lives in `lib/quotes.ts`; harvesting a sunflower gives it a random one (preferring unused quotes), shown as a card on its page and in the bubble above the flower. Growing plants, sunflowers included, have no lesson.
+  Why now: The learner wanted the lesson to be the reward for harvesting, and to come from successful long-term investors rather than the user.
+  PRD ref: `prd.md > Lessons`, `prd.md > The Core Journey` (steps 7–8), `prd.md > Harvest`
+  Spec ref: `spec.md > Quote Register — lib/quotes.ts`, `spec.md > Lessons — lib/lessons.ts`, `spec.md > LessonBubble — components/garden/LessonBubble.tsx`, `spec.md > Data Model`
+  Build:
+  - Gather quotes: raw Wikiquote pages (`action=raw`, sourced sections only) and Buffett's 1984–2002 letters from berkshirehathaway.com; pick 100 on long-term investing; check the letter quotes verbatim against the letters.
+  - Add `lib/quotes.ts`, rewrite `lib/lessons.ts` (`lessonFor` returns `null` before harvest, `pickQuoteId`), add `quoteId` to `Plant` and its storage check.
+  - `useGarden.harvest` assigns the quote; remove `updateLesson` and the lesson textarea; `PlantPage` shows the quote card; only flowers with a lesson open the bubble on tap.
+  Verify (mechanical):
+  - `npm test` passes (34 tests: register size and ids, no lesson before harvest, quote shown after, unused quotes preferred, wrap-around); `tsc --noEmit` and `eslint` are clean.
+  - Headless Chrome with a seeded garden: tapping a growing sunflower opens its page (no bubble, no lesson card, no textarea); pressing Harvest saves `quoteId` `q003` and shows "Lesson from the harvest" with author and source; tapping the harvested flower shows the quote bubble.
+  Learner check: Open a growing sunflower's page and confirm there's no lesson; harvest it and read its quote; harvest another and see a different quote.
+
 ## Hands-on Checkpoints
 
 - [ ] Early usable behavior explored — after slice 3 (plant from the notebook, real growth, Demo), before visual polish is locked in. *Not performed: the learner chose to continue straight to slices 4–6; early feedback folds into the final review.*
@@ -148,4 +191,11 @@ Activity mode: Recap (the learner chose to move straight on to shipping).
 - **The 📖 button opens on the "How it grows" guide page; the "Plant your first seed" sign (slice 6) opens the new-entry page.** The notebook got tab navigation between its pages.
 - **Slice 6's visual checks at 375px and 1280px moved to the learner's final review, and only the server-rendered neutral state was verified mechanically.** The agent has no browser. The server HTML has the plot but no sign or welcome text; those appear only after the saved garden loads.
 - **The scenery lives in `components/garden/Scenery.tsx`.** It holds the trees, pond, swaying grass and the bird; this file wasn't in the spec's tree. It's purely decorative.
+- **Slice 7 (2026-10-15): the single plot became three plots, and Harvest moved from "deferred" into the product.** Harvest is manual and only for real sunflowers; the flower then stays at stage 4 with the day's price. The PRD and spec were updated to match.
+- **The Demo button became the Demo plot's sign, and the plant's "Demo" badge was removed.** The learner found three "Demo" labels too many; the Demo plot and pale petals already mark the demo plant.
+- **The scene now fills the window.** The learner preferred how the page looked at 25% zoom; the difference was the top bar and HTML title taking height. The top bar now floats over the sky, the title is SVG text that scales with the farm, and the `viewBox` is fitted to the window.
+- **Slice 8 (2026-10-15): editing and deleting purchases moved from "deferred" into the product,** as the Seed table. Edits apply on every valid keystroke rather than on a Save button, so the garden responds live; invalid text is never applied. Planting no longer closes the notebook.
+- **Slice 9 (2026-10-15): typed lessons and the two built-in lessons were replaced by a register of 100 sourced investor quotes, given at harvest.** This also resolves the open question about the unverified Buffett quote. One Buffett quote predicting a "bad ending" for cryptocurrencies was left out of the register on purpose, since the app is for crypto investors. Old saves keep working: a typed lesson on a harvested flower is still shown, and older harvests get a steady quote from their id.
+- **A reusable `ConfirmDialog` replaces `window.confirm`.** It is the first in-app dialog; future "are you sure?" questions should use it too.
+- **On-world text changed from cream to soil-brown with a cream outline** (title and "Coin Garden" name), because cream was hard to read on the light grass. The global `.on-world` class was removed.
 

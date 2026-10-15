@@ -2,7 +2,6 @@
 
 import { useCallback, useState } from "react";
 import TopBar from "./TopBar";
-import DemoButton from "./DemoButton";
 import GardenScene from "./garden/GardenScene";
 import Notebook, { type NotebookPage } from "./notebook/Notebook";
 import { useGarden } from "@/hooks/useGarden";
@@ -28,35 +27,44 @@ export default function CoinGardenApp() {
     [garden, demo.simulatedPrice],
   );
   const priceMissing = useCallback((plant: Plant) => !plant.isDemo && garden.priceMissing(plant), [garden]);
+  const harvest = useCallback(
+    (id: string) => {
+      garden.harvest(id);
+      setSelectedId(null);
+    },
+    [garden],
+  );
 
   const openPlantPage = (plant: Plant) => {
     setSelectedId(null);
     setNotebookPage({ kind: "plant", id: plant.id });
   };
 
-  // A sunflower shows its lesson first; any other plant opens its notebook page.
+  // A flower that carries a lesson (harvested, or the demo) shows it first; any other plant opens its page.
   const selectPlant = (plant: Plant) => {
-    if (stageOf(plant) === 4) setSelectedId((id) => (id === plant.id ? null : plant.id));
+    if (stageOf(plant) === 4 && lessonFor(plant)) setSelectedId((id) => (id === plant.id ? null : plant.id));
     else openPlantPage(plant);
   };
 
   const pagePlant = notebookPage?.kind === "plant" ? garden.plants.find((p) => p.id === notebookPage.id) : undefined;
-  // Until the saved garden has loaded, show the neutral plot only (no sign flash for returning visitors).
-  const isEmpty = garden.loaded && garden.plants.length === 0;
+  // Until the saved garden has loaded, show the neutral plots only (no sign flash for returning visitors).
+  // The demo lives in its own plot, so it doesn't count as a first seed.
+  const isEmpty = garden.loaded && garden.plants.every((p) => p.isDemo);
 
   return (
     <div className={styles.app}>
       <TopBar onOpenNotebook={() => setNotebookPage({ kind: "guide" })} />
       <main className={styles.stage}>
-        <div className={styles.welcome} aria-hidden={!isEmpty}>
-          {isEmpty && (
-            <>
-              <h1 className={`on-world ${styles.welcomeTitle}`}>Welcome to your plot of land.</h1>
-              <p className={`on-world ${styles.welcomeLine}`}>Every coin you buy is a seed. Patience grows it.</p>
-            </>
-          )}
-        </div>
         <GardenScene
+          // First visit greets the new farmer; once a seed is planted the title cheers the farm on.
+          // Nothing until the save has loaded, so returning visitors don't see the greeting flash.
+          title={
+            garden.loaded
+              ? isEmpty
+                ? { heading: "Welcome to your plot of land.", line: "Every coin you buy is a seed. Patience grows it." }
+                : { heading: "Your farm is growing.", line: "Patience turns every seed into a sunflower." }
+              : null
+          }
           showSign={isEmpty}
           onPlantFirstSeed={() => setNotebookPage({ kind: "new" })}
           plants={garden.plants}
@@ -67,23 +75,27 @@ export default function CoinGardenApp() {
           onSelectPlant={selectPlant}
           onOpenPage={openPlantPage}
           onBackgroundClick={() => setSelectedId(null)}
+          onRunDemo={demo.run}
+          demoRunning={demo.running}
         />
-        <DemoButton onClick={demo.run} running={demo.running} />
       </main>
       {notebookPage && (
         <Notebook
           page={notebookPage}
           onNavigate={setNotebookPage}
           onClose={() => setNotebookPage(null)}
-          onPlant={(entry) => {
-            garden.addPlant(entry);
-            setNotebookPage(null);
-          }}
+          // The seed table stays open so several purchases can be entered in a row.
+          onPlant={garden.addPlant}
+          plants={garden.plants.filter((p) => !p.isDemo)}
+          stageOf={stageOf}
+          priceMissing={priceMissing}
+          onUpdate={garden.updatePlant}
+          onRemove={garden.removePlant}
           plant={pagePlant}
           plantStage={pagePlant && stageOf(pagePlant)}
           plantPrice={pagePlant && garden.priceOf(pagePlant)}
           plantPriceMissing={pagePlant && priceMissing(pagePlant)}
-          onLessonChange={garden.updateLesson}
+          onHarvest={harvest}
         />
       )}
     </div>

@@ -1,14 +1,36 @@
+/* Floats over the sky so the farm can use the full height of the window. */
 .bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
+  pointer-events: none;
 }
 
+.bar > * {
+  pointer-events: auto;
+}
+
+/* Soil-coloured with a cream outline, like the title painted on the sky. */
 .name {
+  font-family: var(--font-heading), "Segoe UI", sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
-  text-shadow: 0 3px 0 var(--bark-dark);
+  color: var(--soil-dark);
+  text-shadow:
+    2px 0 0 var(--cream),
+    -2px 0 0 var(--cream),
+    0 2px 0 var(--cream),
+    0 -2px 0 var(--cream),
+    1.5px 1.5px 0 var(--cream),
+    -1.5px 1.5px 0 var(--cream),
+    1.5px -1.5px 0 var(--cream),
+    -1.5px -1.5px 0 var(--cream);
 }
 
 .notebook {
@@ -18,6 +40,11 @@
 }
 
 @media (max-width: 640px) {
+  /* Phones scroll the farm, so the bar sits in the flow above it. */
+  .bar {
+    position: static;
+  }
+
   .label {
     display: none;
   }

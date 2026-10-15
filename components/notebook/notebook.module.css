@@ -220,6 +220,194 @@
   margin: 0;
 }
 
+/* The seed table needs a wider book. */
+.bookWide {
+  width: min(100%, 940px);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin: 0 -4px;
+  padding: 0 4px 4px;
+}
+
+.table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--cream);
+  border: var(--border);
+  border-radius: var(--radius-small);
+  overflow: hidden;
+}
+
+.table th {
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--bark);
+  background: var(--cream-deep);
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--paper-line);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--paper-line);
+  vertical-align: middle;
+}
+
+.table td + td,
+.table th + th {
+  border-left: 1px solid var(--paper-line);
+}
+
+.table tbody tr:hover {
+  background: var(--cream-deep);
+}
+
+.newRow td {
+  background: var(--cream-deep);
+  vertical-align: top;
+}
+
+.cell {
+  width: 100%;
+  min-width: 90px;
+  padding: 5px 8px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.cell:hover {
+  border-color: var(--paper-line);
+}
+
+.cell:focus {
+  outline: none;
+  border-color: var(--bark);
+  background: var(--cream);
+}
+
+.newRow .cell {
+  border-color: var(--paper-line);
+  background: var(--cream);
+}
+
+.cell[aria-invalid="true"] {
+  border-color: var(--brick);
+}
+
+.coinCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.coinName {
+  font-weight: 700;
+}
+
+.coinCell .linkButton {
+  font-size: 0.8rem;
+}
+
+.coinEdit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 200px;
+}
+
+.coinEdit .search {
+  width: 100%;
+}
+
+.statusButton {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.statusText {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.removeButton {
+  border: none;
+  background: none;
+  color: var(--brick);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.removeButton:hover,
+.removeButton:focus-visible {
+  background: var(--cream-deep);
+}
+
+.plantButton {
+  width: 100%;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+.emptyRow {
+  color: var(--slate);
+  text-align: center;
+  padding: 14px !important;
+}
+
+/* The lesson a flower received at harvest: a quote card on the plant's page. */
+.lessonCard {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--cream-deep);
+  border: var(--border);
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow-small);
+}
+
+.lessonText {
+  margin: 6px 0 8px;
+  font-family: var(--font-heading), sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  color: var(--bark-dark);
+}
+
+.lessonAuthor {
+  margin: 0;
+  font-weight: 700;
+  color: var(--bark);
+}
+
+.lessonSource {
+  font-weight: 400;
+  color: var(--slate);
+  font-size: 0.9rem;
+}
+
+.harvest {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .linkButton {
   margin-left: auto;
   border: none;

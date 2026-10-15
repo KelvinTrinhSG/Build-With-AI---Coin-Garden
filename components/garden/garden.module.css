@@ -1,14 +1,122 @@
-.scene {
-  width: min(100%, 860px);
+/* Wide screens: the farm fills the whole stage; the scene's viewBox is fitted to this box. */
+.wrap {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.wrap .scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Phones stack the three plots, so the scene is tall and scrolls with the page. */
+.wrapTall {
+  width: 100%;
+}
+
+.wrapTall .scene {
+  display: block;
+  width: 100%;
   height: auto;
-  max-height: 62vh;
+}
+
+.scene {
   overflow: visible;
 }
 
-@media (max-width: 640px) {
-  .scene {
-    max-height: none;
-  }
+/* The title painted onto the sky, in the colours of the soil. */
+.title {
+  pointer-events: none;
+}
+
+.titleHeading {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 700;
+  fill: var(--soil-dark);
+  stroke: var(--cream);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+
+.titleLine {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 600;
+  fill: var(--bark);
+  stroke: var(--cream);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+
+/* Zone captions: a little paper card over each part of the farm. */
+.caption {
+  background: var(--cream);
+  border: 2.5px solid var(--bark);
+  border-radius: var(--radius-small);
+  box-shadow: 0 3px 0 var(--bark-dark);
+  padding: 6px 12px;
+  text-align: center;
+  color: var(--ink);
+  font-family: var(--font-body), sans-serif;
+}
+
+.caption p {
+  margin: 0;
+}
+
+.captionTitle {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.25;
+  color: var(--bark-dark);
+}
+
+.captionText {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.plotLabel {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  fill: var(--bark-dark);
+}
+
+/* The demo plot's sign doubles as the Demo button: its board presses down like the wooden-toy buttons. */
+.signButton {
+  cursor: pointer;
+  outline: none;
+}
+
+.signButton .signBoard {
+  transition: transform 0.06s;
+}
+
+.signButton:active:not(.signButtonDisabled) .signBoard {
+  transform: translateY(4px);
+}
+
+.signButton:focus-visible {
+  filter: drop-shadow(0 0 4px var(--wheat));
+}
+
+.signButtonDisabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.plotLabelButton {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  fill: var(--cream);
 }
 
 .sign {
@@ -89,10 +197,30 @@
   }
 }
 
+/* Lazy puffs from the tractor's exhaust. */
+.puff {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: puff 2.4s ease-out infinite;
+}
+
+@keyframes puff {
+  from {
+    transform: translate(0, 0) scale(0.4);
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(8px, -22px) scale(1.6);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sway,
   .ripple,
-  .bird {
+  .bird,
+  .puff {
     animation: none;
   }
 }
@@ -137,7 +265,7 @@
   font-size: 14px;
   line-height: 1.35;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

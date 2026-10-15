@@ -32,11 +32,27 @@
   --petal-edge: var(--wheat-dark);
   --flower-heart: var(--bark);
   --demo-petal: #f3d27a;
-  --demo-tint: var(--slate);
   --tree: #5f9e45;
   --pond: #9cc4d6;
   --pond-edge: var(--slate);
   --bird: var(--bark-dark);
+
+  /* Farm props */
+  --barn: var(--brick);
+  --barn-dark: var(--brick-dark);
+  --barn-trim: var(--cream);
+  --roof: #7a4b3a;
+  --silo: #d8cbb0;
+  --silo-band: #b3a283;
+  --tractor: #e0a92b;
+  --tractor-dark: var(--wheat-dark);
+  --tire: #3d3328;
+  --hub: var(--cream-deep);
+  --metal: #a9b4b9;
+  --metal-dark: var(--slate);
+  --hay: #e9c96a;
+  --hay-dark: #b8953a;
+  --glass: #cfe3ea;
 
   /* Overlays */
   --scrim: rgba(59, 42, 26, 0.35);

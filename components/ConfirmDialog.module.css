@@ -1,0 +1,81 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--scrim);
+  animation: fade 0.15s ease-out;
+}
+
+/* A small page torn from the notebook: cream paper, bark border, solid wooden shadow. */
+.card {
+  width: min(100%, 380px);
+  padding: 22px 24px 20px;
+  background: var(--cream);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+  font-family: var(--font-body), sans-serif;
+  color: var(--ink);
+  animation: pop 0.18s ease-out;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  margin: -6px auto 6px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--cream-deep);
+  border: var(--border);
+}
+
+.title {
+  margin: 0 0 6px;
+  font-family: var(--font-heading), sans-serif;
+  font-size: 1.35rem;
+  color: var(--bark-dark);
+}
+
+.body {
+  margin: 0 0 18px;
+  line-height: 1.45;
+}
+
+.body p {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.actions > button {
+  flex: 1;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: translateY(8px) scale(0.96);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrim,
+  .card {
+    animation: none;
+  }
+}
